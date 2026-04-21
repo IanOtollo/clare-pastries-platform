@@ -21,6 +21,7 @@ import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as OrdersIdRouteImport } from './routes/orders.$id'
 import { Route as MenuSlugRouteImport } from './routes/menu.$slug'
+import { Route as ApiPublicTrackOrderRouteImport } from './routes/api/public/track-order'
 import { Route as ApiPublicNotifyOrderRouteImport } from './routes/api/public/notify-order'
 import { Route as ApiPublicBootstrapAdminRouteImport } from './routes/api/public/bootstrap-admin'
 
@@ -84,6 +85,11 @@ const MenuSlugRoute = MenuSlugRouteImport.update({
   path: '/$slug',
   getParentRoute: () => MenuRoute,
 } as any)
+const ApiPublicTrackOrderRoute = ApiPublicTrackOrderRouteImport.update({
+  id: '/api/public/track-order',
+  path: '/api/public/track-order',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicNotifyOrderRoute = ApiPublicNotifyOrderRouteImport.update({
   id: '/api/public/notify-order',
   path: '/api/public/notify-order',
@@ -110,6 +116,7 @@ export interface FileRoutesByFullPath {
   '/orders/$id': typeof OrdersIdRoute
   '/api/public/bootstrap-admin': typeof ApiPublicBootstrapAdminRoute
   '/api/public/notify-order': typeof ApiPublicNotifyOrderRoute
+  '/api/public/track-order': typeof ApiPublicTrackOrderRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -126,6 +133,7 @@ export interface FileRoutesByTo {
   '/orders/$id': typeof OrdersIdRoute
   '/api/public/bootstrap-admin': typeof ApiPublicBootstrapAdminRoute
   '/api/public/notify-order': typeof ApiPublicNotifyOrderRoute
+  '/api/public/track-order': typeof ApiPublicTrackOrderRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -143,6 +151,7 @@ export interface FileRoutesById {
   '/orders/$id': typeof OrdersIdRoute
   '/api/public/bootstrap-admin': typeof ApiPublicBootstrapAdminRoute
   '/api/public/notify-order': typeof ApiPublicNotifyOrderRoute
+  '/api/public/track-order': typeof ApiPublicTrackOrderRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -161,6 +170,7 @@ export interface FileRouteTypes {
     | '/orders/$id'
     | '/api/public/bootstrap-admin'
     | '/api/public/notify-order'
+    | '/api/public/track-order'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -177,6 +187,7 @@ export interface FileRouteTypes {
     | '/orders/$id'
     | '/api/public/bootstrap-admin'
     | '/api/public/notify-order'
+    | '/api/public/track-order'
   id:
     | '__root__'
     | '/'
@@ -193,6 +204,7 @@ export interface FileRouteTypes {
     | '/orders/$id'
     | '/api/public/bootstrap-admin'
     | '/api/public/notify-order'
+    | '/api/public/track-order'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -209,6 +221,7 @@ export interface RootRouteChildren {
   OrdersIdRoute: typeof OrdersIdRoute
   ApiPublicBootstrapAdminRoute: typeof ApiPublicBootstrapAdminRoute
   ApiPublicNotifyOrderRoute: typeof ApiPublicNotifyOrderRoute
+  ApiPublicTrackOrderRoute: typeof ApiPublicTrackOrderRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -297,6 +310,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MenuSlugRouteImport
       parentRoute: typeof MenuRoute
     }
+    '/api/public/track-order': {
+      id: '/api/public/track-order'
+      path: '/api/public/track-order'
+      fullPath: '/api/public/track-order'
+      preLoaderRoute: typeof ApiPublicTrackOrderRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/notify-order': {
       id: '/api/public/notify-order'
       path: '/api/public/notify-order'
@@ -338,6 +358,7 @@ const rootRouteChildren: RootRouteChildren = {
   OrdersIdRoute: OrdersIdRoute,
   ApiPublicBootstrapAdminRoute: ApiPublicBootstrapAdminRoute,
   ApiPublicNotifyOrderRoute: ApiPublicNotifyOrderRoute,
+  ApiPublicTrackOrderRoute: ApiPublicTrackOrderRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
