@@ -18,6 +18,7 @@ import { Footer } from "@/components/layout/Footer";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth, signOut } from "@/lib/auth";
 import { formatKES } from "@/lib/format";
+import { ProductsAdmin } from "@/components/admin/ProductsAdmin";
 
 export const Route = createFileRoute("/admin")({
   component: AdminPage,
@@ -125,6 +126,7 @@ function AdminPage() {
 }
 
 function AdminDashboard() {
+  const [tab, setTab] = useState<"orders" | "products">("orders");
   const [orders, setOrders] = useState<AdminOrder[]>([]);
   const [items, setItems] = useState<Record<string, AdminOrderItem[]>>({});
   const [loading, setLoading] = useState(true);
