@@ -1,23 +1,19 @@
 import { Outlet, Link, createRootRoute, HeadContent, Scripts } from "@tanstack/react-router";
+import { ThemeBootstrap } from "@/components/layout/ThemeBootstrap";
 
 import appCss from "../styles.css?url";
 
 function NotFoundComponent() {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background px-4">
+    <div className="flex min-h-screen items-center justify-center bg-[var(--cp-bg)] px-4">
       <div className="max-w-md text-center">
-        <h1 className="text-7xl font-bold text-foreground">404</h1>
-        <h2 className="mt-4 text-xl font-semibold text-foreground">Page not found</h2>
-        <p className="mt-2 text-sm text-muted-foreground">
-          The page you're looking for doesn't exist or has been moved.
+        <p className="label-eyebrow">404</p>
+        <h1 className="mt-4 font-display text-5xl text-[var(--cp-text)]">Page not found</h1>
+        <p className="mt-3 text-[var(--cp-text-muted)]">
+          The page you're looking for doesn't exist. Let's get you back to something delicious.
         </p>
-        <div className="mt-6">
-          <Link
-            to="/"
-            className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
-          >
-            Go home
-          </Link>
+        <div className="mt-7">
+          <Link to="/" className="btn-cta">Back to home</Link>
         </div>
       </div>
     </div>
@@ -29,19 +25,22 @@ export const Route = createRootRoute({
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Lovable App" },
-      { name: "description", content: "Lovable Generated Project" },
-      { name: "author", content: "Lovable" },
-      { property: "og:title", content: "Lovable App" },
-      { property: "og:description", content: "Lovable Generated Project" },
+      { title: "Clare Pastries — Baked Fresh. Delivered with Love." },
+      { name: "description", content: "Handcrafted artisan pastries, cakes and breads, baked fresh daily by Clare in Busia, Kenya. Order online with M-Pesa." },
+      { name: "author", content: "Clare Pastries" },
+      { name: "theme-color", content: "#F9F5EF" },
+      { property: "og:title", content: "Clare Pastries — Baked Fresh. Delivered with Love." },
+      { property: "og:description", content: "Handcrafted artisan pastries, cakes and breads, baked fresh daily in Busia, Kenya." },
       { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary" },
-      { name: "twitter:site", content: "@Lovable" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
     links: [
+      { rel: "stylesheet", href: appCss },
+      { rel: "preconnect", href: "https://fonts.googleapis.com" },
+      { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
       {
         rel: "stylesheet",
-        href: appCss,
+        href: "https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Jost:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap",
       },
     ],
   }),
@@ -55,6 +54,11 @@ function RootShell({ children }: { children: React.ReactNode }) {
     <html lang="en">
       <head>
         <HeadContent />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){try{var raw=localStorage.getItem('cp-prefs-v1');if(raw){var t=JSON.parse(raw).state.theme;if(t)document.documentElement.setAttribute('data-theme',t);}}catch(e){}})();`,
+          }}
+        />
       </head>
       <body>
         {children}
@@ -65,5 +69,10 @@ function RootShell({ children }: { children: React.ReactNode }) {
 }
 
 function RootComponent() {
-  return <Outlet />;
+  return (
+    <>
+      <ThemeBootstrap />
+      <Outlet />
+    </>
+  );
 }
