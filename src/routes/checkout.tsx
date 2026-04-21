@@ -89,7 +89,7 @@ function Checkout() {
       clear();
       setStep(4);
 
-      // Fire-and-forget WhatsApp notification to Clare — never blocks the order
+      // Fire-and-forget WhatsApp notification — never blocks the order
       void fetch("/api/public/notify-order", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
