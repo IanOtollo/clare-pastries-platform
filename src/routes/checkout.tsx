@@ -289,6 +289,41 @@ function Checkout() {
                     <div className="mt-6 inline-block px-5 py-3 rounded-lg bg-[var(--cp-surface-2)] font-mono text-sm">
                       Order #{orderId.slice(0, 8).toUpperCase()}
                     </div>
+
+                    {payMethod === "mpesa" && (
+                      <div className="mt-6 max-w-md mx-auto p-5 rounded-xl bg-[var(--cp-surface-2)] border border-[var(--cp-border)] text-left">
+                        <p className="text-xs font-mono uppercase tracking-wider text-[var(--cp-text-muted)] mb-2">M-Pesa Payment</p>
+                        {payState === "waiting" && (
+                          <>
+                            <p className="text-sm">Check your phone <span className="font-mono">{stkPhone}</span> and enter your M-Pesa PIN.</p>
+                            <p className="text-xs text-[var(--cp-text-muted)] mt-2">Waiting for confirmation… this usually takes 10–30 seconds.</p>
+                          </>
+                        )}
+                        {payState === "paid" && (
+                          <p className="text-sm text-[var(--cp-success)]">✓ Payment confirmed. Thank you!</p>
+                        )}
+                        {payState === "failed" && (
+                          <>
+                            <p className="text-sm text-[var(--cp-error)]">{error || "Payment didn't complete."}</p>
+                            <div className="mt-3 flex items-center gap-2">
+                              <input
+                                value={stkPhone}
+                                onChange={(e) => setStkPhone(e.target.value)}
+                                className={input}
+                                placeholder="07xx xxx xxx"
+                              />
+                              <button
+                                onClick={() => orderId && triggerStk(orderId, stkPhone)}
+                                className="btn-cta whitespace-nowrap"
+                              >
+                                Retry
+                              </button>
+                            </div>
+                          </>
+                        )}
+                      </div>
+                    )}
+
                     <p className="mt-6 text-sm text-[var(--cp-text-muted)]">
                       {fulfillment === "delivery" ? "Estimated delivery: 45–90 minutes." : "Ready in 30–60 minutes. Call +254 714 399 302 when you arrive."}
                     </p>
