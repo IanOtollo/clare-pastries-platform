@@ -89,7 +89,7 @@ function Checkout() {
       clear();
       setStep(4);
 
-      // Fire-and-forget WhatsApp notification to Clare — never blocks the order
+      // Fire-and-forget WhatsApp notification — never blocks the order
       void fetch("/api/public/notify-order", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -233,10 +233,11 @@ function Checkout() {
                       Order #{orderId.slice(0, 8).toUpperCase()}
                     </div>
                     <p className="mt-6 text-sm text-[var(--cp-text-muted)]">
-                      {fulfillment === "delivery" ? "Estimated delivery: 45–90 minutes." : "Ready in 30–60 minutes. Call +254 724 848228 when you arrive."}
+                      {fulfillment === "delivery" ? "Estimated delivery: 45–90 minutes." : "Ready in 30–60 minutes. Call +254 714 399 302 when you arrive."}
                     </p>
-                    <div className="mt-8 flex items-center justify-center gap-4">
-                      <button onClick={() => navigate({ to: "/menu" })} className="btn-cta">Continue Shopping</button>
+                    <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
+                      <Link to="/orders/$id" params={{ id: orderId }} className="btn-cta">Track your order →</Link>
+                      <button onClick={() => navigate({ to: "/menu" })} className="px-6 py-3 rounded-lg border border-[var(--cp-border)] hover:bg-[var(--cp-surface-2)]">Continue Shopping</button>
                     </div>
                   </div>
                 )}
