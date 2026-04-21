@@ -22,6 +22,9 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as OrdersIdRouteImport } from './routes/orders.$id'
 import { Route as MenuSlugRouteImport } from './routes/menu.$slug'
 import { Route as ApiPublicTrackOrderRouteImport } from './routes/api/public/track-order'
+import { Route as ApiPublicPaymentStatusRouteImport } from './routes/api/public/payment-status'
+import { Route as ApiPublicPayheroInitiateRouteImport } from './routes/api/public/payhero-initiate'
+import { Route as ApiPublicPayheroCallbackRouteImport } from './routes/api/public/payhero-callback'
 import { Route as ApiPublicNotifyOrderRouteImport } from './routes/api/public/notify-order'
 import { Route as ApiPublicBootstrapAdminRouteImport } from './routes/api/public/bootstrap-admin'
 
@@ -90,6 +93,23 @@ const ApiPublicTrackOrderRoute = ApiPublicTrackOrderRouteImport.update({
   path: '/api/public/track-order',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicPaymentStatusRoute = ApiPublicPaymentStatusRouteImport.update({
+  id: '/api/public/payment-status',
+  path: '/api/public/payment-status',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicPayheroInitiateRoute =
+  ApiPublicPayheroInitiateRouteImport.update({
+    id: '/api/public/payhero-initiate',
+    path: '/api/public/payhero-initiate',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiPublicPayheroCallbackRoute =
+  ApiPublicPayheroCallbackRouteImport.update({
+    id: '/api/public/payhero-callback',
+    path: '/api/public/payhero-callback',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicNotifyOrderRoute = ApiPublicNotifyOrderRouteImport.update({
   id: '/api/public/notify-order',
   path: '/api/public/notify-order',
@@ -116,6 +136,9 @@ export interface FileRoutesByFullPath {
   '/orders/$id': typeof OrdersIdRoute
   '/api/public/bootstrap-admin': typeof ApiPublicBootstrapAdminRoute
   '/api/public/notify-order': typeof ApiPublicNotifyOrderRoute
+  '/api/public/payhero-callback': typeof ApiPublicPayheroCallbackRoute
+  '/api/public/payhero-initiate': typeof ApiPublicPayheroInitiateRoute
+  '/api/public/payment-status': typeof ApiPublicPaymentStatusRoute
   '/api/public/track-order': typeof ApiPublicTrackOrderRoute
 }
 export interface FileRoutesByTo {
@@ -133,6 +156,9 @@ export interface FileRoutesByTo {
   '/orders/$id': typeof OrdersIdRoute
   '/api/public/bootstrap-admin': typeof ApiPublicBootstrapAdminRoute
   '/api/public/notify-order': typeof ApiPublicNotifyOrderRoute
+  '/api/public/payhero-callback': typeof ApiPublicPayheroCallbackRoute
+  '/api/public/payhero-initiate': typeof ApiPublicPayheroInitiateRoute
+  '/api/public/payment-status': typeof ApiPublicPaymentStatusRoute
   '/api/public/track-order': typeof ApiPublicTrackOrderRoute
 }
 export interface FileRoutesById {
@@ -151,6 +177,9 @@ export interface FileRoutesById {
   '/orders/$id': typeof OrdersIdRoute
   '/api/public/bootstrap-admin': typeof ApiPublicBootstrapAdminRoute
   '/api/public/notify-order': typeof ApiPublicNotifyOrderRoute
+  '/api/public/payhero-callback': typeof ApiPublicPayheroCallbackRoute
+  '/api/public/payhero-initiate': typeof ApiPublicPayheroInitiateRoute
+  '/api/public/payment-status': typeof ApiPublicPaymentStatusRoute
   '/api/public/track-order': typeof ApiPublicTrackOrderRoute
 }
 export interface FileRouteTypes {
@@ -170,6 +199,9 @@ export interface FileRouteTypes {
     | '/orders/$id'
     | '/api/public/bootstrap-admin'
     | '/api/public/notify-order'
+    | '/api/public/payhero-callback'
+    | '/api/public/payhero-initiate'
+    | '/api/public/payment-status'
     | '/api/public/track-order'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -187,6 +219,9 @@ export interface FileRouteTypes {
     | '/orders/$id'
     | '/api/public/bootstrap-admin'
     | '/api/public/notify-order'
+    | '/api/public/payhero-callback'
+    | '/api/public/payhero-initiate'
+    | '/api/public/payment-status'
     | '/api/public/track-order'
   id:
     | '__root__'
@@ -204,6 +239,9 @@ export interface FileRouteTypes {
     | '/orders/$id'
     | '/api/public/bootstrap-admin'
     | '/api/public/notify-order'
+    | '/api/public/payhero-callback'
+    | '/api/public/payhero-initiate'
+    | '/api/public/payment-status'
     | '/api/public/track-order'
   fileRoutesById: FileRoutesById
 }
@@ -221,6 +259,9 @@ export interface RootRouteChildren {
   OrdersIdRoute: typeof OrdersIdRoute
   ApiPublicBootstrapAdminRoute: typeof ApiPublicBootstrapAdminRoute
   ApiPublicNotifyOrderRoute: typeof ApiPublicNotifyOrderRoute
+  ApiPublicPayheroCallbackRoute: typeof ApiPublicPayheroCallbackRoute
+  ApiPublicPayheroInitiateRoute: typeof ApiPublicPayheroInitiateRoute
+  ApiPublicPaymentStatusRoute: typeof ApiPublicPaymentStatusRoute
   ApiPublicTrackOrderRoute: typeof ApiPublicTrackOrderRoute
 }
 
@@ -317,6 +358,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicTrackOrderRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/payment-status': {
+      id: '/api/public/payment-status'
+      path: '/api/public/payment-status'
+      fullPath: '/api/public/payment-status'
+      preLoaderRoute: typeof ApiPublicPaymentStatusRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/payhero-initiate': {
+      id: '/api/public/payhero-initiate'
+      path: '/api/public/payhero-initiate'
+      fullPath: '/api/public/payhero-initiate'
+      preLoaderRoute: typeof ApiPublicPayheroInitiateRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/payhero-callback': {
+      id: '/api/public/payhero-callback'
+      path: '/api/public/payhero-callback'
+      fullPath: '/api/public/payhero-callback'
+      preLoaderRoute: typeof ApiPublicPayheroCallbackRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/notify-order': {
       id: '/api/public/notify-order'
       path: '/api/public/notify-order'
@@ -358,6 +420,9 @@ const rootRouteChildren: RootRouteChildren = {
   OrdersIdRoute: OrdersIdRoute,
   ApiPublicBootstrapAdminRoute: ApiPublicBootstrapAdminRoute,
   ApiPublicNotifyOrderRoute: ApiPublicNotifyOrderRoute,
+  ApiPublicPayheroCallbackRoute: ApiPublicPayheroCallbackRoute,
+  ApiPublicPayheroInitiateRoute: ApiPublicPayheroInitiateRoute,
+  ApiPublicPaymentStatusRoute: ApiPublicPaymentStatusRoute,
   ApiPublicTrackOrderRoute: ApiPublicTrackOrderRoute,
 }
 export const routeTree = rootRouteImport

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { Wheat, Flame, Package, Smartphone, CheckCircle2, Truck, Store, Banknote, CreditCard } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -32,6 +32,56 @@ function Checkout() {
   const [orderId, setOrderId] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [stkPhone, setStkPhone] = useState("");
+  const [payState, setPayState] = useState<"idle" | "waiting" | "paid" | "failed">("idle");
+  const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (pollRef.current) clearInterval(pollRef.current);
+    };
+  }, []);
+
+  function pollPayment(id: string) {
+    if (pollRef.current) clearInterval(pollRef.current);
+    let tries = 0;
+    pollRef.current = setInterval(async () => {
+      tries += 1;
+      try {
+        const r = await fetch(`/api/public/payment-status?orderId=${id}`);
+        const j = await r.json();
+        if (j?.payment_status === "paid") {
+          setPayState("paid");
+          if (pollRef.current) clearInterval(pollRef.current);
+        }
+      } catch {
+        /* ignore */
+      }
+      if (tries > 40) {
+        // ~2 min @ 3s
+        setPayState((s) => (s === "paid" ? s : "failed"));
+        if (pollRef.current) clearInterval(pollRef.current);
+      }
+    }, 3000);
+  }
+
+  async function triggerStk(id: string, phone: string) {
+    setPayState("waiting");
+    setError(null);
+    try {
+      const res = await fetch("/api/public/payhero-initiate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ orderId: id, phone }),
+      });
+      const j = await res.json();
+      if (!j.ok) throw new Error(j.error || "Could not start M-Pesa payment.");
+      pollPayment(id);
+    } catch (e) {
+      setPayState("failed");
+      setError(e instanceof Error ? e.message : "M-Pesa request failed.");
+    }
+  }
 
   const deliveryFee = fulfillment === "delivery" ? 100 : 0;
   const total = subtotal + deliveryFee;
