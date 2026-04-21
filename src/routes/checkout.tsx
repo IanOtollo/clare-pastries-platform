@@ -145,6 +145,13 @@ function Checkout() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ orderId: order.id }),
       }).catch(() => {});
+
+      // Auto-trigger M-Pesa STK if selected
+      if (payMethod === "mpesa") {
+        const phone = (details.phone || "").trim();
+        setStkPhone(phone);
+        void triggerStk(order.id, phone);
+      }
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : "Could not place order. Please try again.");
     } finally {
