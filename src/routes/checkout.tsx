@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { Wheat, Flame, Package, Smartphone, CheckCircle2, Truck, Store, Banknote, CreditCard } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -32,6 +32,56 @@ function Checkout() {
   const [orderId, setOrderId] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [stkPhone, setStkPhone] = useState("");
+  const [payState, setPayState] = useState<"idle" | "waiting" | "paid" | "failed">("idle");
+  const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (pollRef.current) clearInterval(pollRef.current);
+    };
+  }, []);
+
+  function pollPayment(id: string) {
+    if (pollRef.current) clearInterval(pollRef.current);
+    let tries = 0;
+    pollRef.current = setInterval(async () => {
+      tries += 1;
+      try {
+        const r = await fetch(`/api/public/payment-status?orderId=${id}`);
+        const j = await r.json();
+        if (j?.payment_status === "paid") {
+          setPayState("paid");
+          if (pollRef.current) clearInterval(pollRef.current);
+        }
+      } catch {
+        /* ignore */
+      }
+      if (tries > 40) {
+        // ~2 min @ 3s
+        setPayState((s) => (s === "paid" ? s : "failed"));
+        if (pollRef.current) clearInterval(pollRef.current);
+      }
+    }, 3000);
+  }
+
+  async function triggerStk(id: string, phone: string) {
+    setPayState("waiting");
+    setError(null);
+    try {
+      const res = await fetch("/api/public/payhero-initiate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ orderId: id, phone }),
+      });
+      const j = await res.json();
+      if (!j.ok) throw new Error(j.error || "Could not start M-Pesa payment.");
+      pollPayment(id);
+    } catch (e) {
+      setPayState("failed");
+      setError(e instanceof Error ? e.message : "M-Pesa request failed.");
+    }
+  }
 
   const deliveryFee = fulfillment === "delivery" ? 100 : 0;
   const total = subtotal + deliveryFee;
@@ -95,6 +145,13 @@ function Checkout() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ orderId: order.id }),
       }).catch(() => {});
+
+      // Auto-trigger M-Pesa STK if selected
+      if (payMethod === "mpesa") {
+        const phone = (details.phone || "").trim();
+        setStkPhone(phone);
+        void triggerStk(order.id, phone);
+      }
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : "Could not place order. Please try again.");
     } finally {
@@ -232,6 +289,41 @@ function Checkout() {
                     <div className="mt-6 inline-block px-5 py-3 rounded-lg bg-[var(--cp-surface-2)] font-mono text-sm">
                       Order #{orderId.slice(0, 8).toUpperCase()}
                     </div>
+
+                    {payMethod === "mpesa" && (
+                      <div className="mt-6 max-w-md mx-auto p-5 rounded-xl bg-[var(--cp-surface-2)] border border-[var(--cp-border)] text-left">
+                        <p className="text-xs font-mono uppercase tracking-wider text-[var(--cp-text-muted)] mb-2">M-Pesa Payment</p>
+                        {payState === "waiting" && (
+                          <>
+                            <p className="text-sm">Check your phone <span className="font-mono">{stkPhone}</span> and enter your M-Pesa PIN.</p>
+                            <p className="text-xs text-[var(--cp-text-muted)] mt-2">Waiting for confirmation… this usually takes 10–30 seconds.</p>
+                          </>
+                        )}
+                        {payState === "paid" && (
+                          <p className="text-sm text-[var(--cp-success)]">✓ Payment confirmed. Thank you!</p>
+                        )}
+                        {payState === "failed" && (
+                          <>
+                            <p className="text-sm text-[var(--cp-error)]">{error || "Payment didn't complete."}</p>
+                            <div className="mt-3 flex items-center gap-2">
+                              <input
+                                value={stkPhone}
+                                onChange={(e) => setStkPhone(e.target.value)}
+                                className={input}
+                                placeholder="07xx xxx xxx"
+                              />
+                              <button
+                                onClick={() => orderId && triggerStk(orderId, stkPhone)}
+                                className="btn-cta whitespace-nowrap"
+                              >
+                                Retry
+                              </button>
+                            </div>
+                          </>
+                        )}
+                      </div>
+                    )}
+
                     <p className="mt-6 text-sm text-[var(--cp-text-muted)]">
                       {fulfillment === "delivery" ? "Estimated delivery: 45–90 minutes." : "Ready in 30–60 minutes. Call +254 714 399 302 when you arrive."}
                     </p>

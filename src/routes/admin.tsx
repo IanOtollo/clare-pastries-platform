@@ -18,6 +18,7 @@ import { Footer } from "@/components/layout/Footer";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth, signOut } from "@/lib/auth";
 import { formatKES } from "@/lib/format";
+import { ProductsAdmin } from "@/components/admin/ProductsAdmin";
 
 export const Route = createFileRoute("/admin")({
   component: AdminPage,
@@ -125,6 +126,7 @@ function AdminPage() {
 }
 
 function AdminDashboard() {
+  const [tab, setTab] = useState<"orders" | "products">("orders");
   const [orders, setOrders] = useState<AdminOrder[]>([]);
   const [items, setItems] = useState<Record<string, AdminOrderItem[]>>({});
   const [loading, setLoading] = useState(true);
@@ -215,7 +217,7 @@ function AdminDashboard() {
           <div className="flex items-center justify-between mb-8">
             <div>
               <p className="label-eyebrow mb-1">Admin Dashboard</p>
-              <h1 className="font-display text-4xl">Orders</h1>
+              <h1 className="font-display text-4xl">{tab === "orders" ? "Orders" : "Products"}</h1>
             </div>
             <button
               onClick={signOut}
@@ -226,54 +228,78 @@ function AdminDashboard() {
             </button>
           </div>
 
-          {/* Stats */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-            <StatCard label="Today's orders" value={stats.todayCount.toString()} />
-            <StatCard label="Today's revenue" value={formatKES(stats.todayRevenue)} />
-            <StatCard label="In progress" value={stats.pending.toString()} accent />
-          </div>
-
-          {/* Filters */}
-          <div className="flex flex-wrap gap-2 mb-6">
-            {(["all", ...STATUS_FLOW, "cancelled"] as const).map((s) => (
+          {/* Tabs */}
+          <div className="flex gap-2 mb-8 border-b border-[var(--cp-border)]">
+            {(["orders", "products"] as const).map((t) => (
               <button
-                key={s}
-                onClick={() => setFilter(s)}
+                key={t}
+                onClick={() => setTab(t)}
                 className={[
-                  "px-3 py-1.5 rounded-full text-xs font-mono uppercase tracking-wider transition-colors",
-                  filter === s
-                    ? "bg-[var(--cp-accent)] text-[#1A1410]"
-                    : "bg-[var(--cp-surface-2)] text-[var(--cp-text-muted)] hover:text-[var(--cp-text)]",
+                  "px-4 py-2.5 text-sm font-mono uppercase tracking-wider border-b-2 -mb-px transition-colors",
+                  tab === t
+                    ? "border-[var(--cp-accent)] text-[var(--cp-text)]"
+                    : "border-transparent text-[var(--cp-text-muted)] hover:text-[var(--cp-text)]",
                 ].join(" ")}
               >
-                {s === "all" ? "All" : STATUS_META[s].label}
+                {t}
               </button>
             ))}
           </div>
 
-          {/* Orders */}
-          {loading ? (
-            <div className="grid place-items-center py-20">
-              <Loader2 className="h-6 w-6 animate-spin text-[var(--cp-accent)]" />
-            </div>
-          ) : filtered.length === 0 ? (
-            <div className="text-center py-16 text-[var(--cp-text-muted)]">
-              No orders {filter !== "all" && `with status "${STATUS_META[filter].label}"`}.
-            </div>
+          {tab === "orders" ? (
+            <>
+              {/* Stats */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+                <StatCard label="Today's orders" value={stats.todayCount.toString()} />
+                <StatCard label="Today's revenue" value={formatKES(stats.todayRevenue)} />
+                <StatCard label="In progress" value={stats.pending.toString()} accent />
+              </div>
+
+              {/* Filters */}
+              <div className="flex flex-wrap gap-2 mb-6">
+                {(["all", ...STATUS_FLOW, "cancelled"] as const).map((s) => (
+                  <button
+                    key={s}
+                    onClick={() => setFilter(s)}
+                    className={[
+                      "px-3 py-1.5 rounded-full text-xs font-mono uppercase tracking-wider transition-colors",
+                      filter === s
+                        ? "bg-[var(--cp-accent)] text-[#1A1410]"
+                        : "bg-[var(--cp-surface-2)] text-[var(--cp-text-muted)] hover:text-[var(--cp-text)]",
+                    ].join(" ")}
+                  >
+                    {s === "all" ? "All" : STATUS_META[s].label}
+                  </button>
+                ))}
+              </div>
+
+              {/* Orders */}
+              {loading ? (
+                <div className="grid place-items-center py-20">
+                  <Loader2 className="h-6 w-6 animate-spin text-[var(--cp-accent)]" />
+                </div>
+              ) : filtered.length === 0 ? (
+                <div className="text-center py-16 text-[var(--cp-text-muted)]">
+                  No orders {filter !== "all" && `with status "${STATUS_META[filter].label}"`}.
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {filtered.map((o, i) => (
+                    <OrderRow
+                      key={o.id}
+                      order={o}
+                      index={i}
+                      items={items[o.id]}
+                      onExpand={() => fetchItems(o.id)}
+                      onSetStatus={(s) => setStatus(o.id, s)}
+                      onTogglePaid={() => togglePaid(o.id, o.payment_status)}
+                    />
+                  ))}
+                </div>
+              )}
+            </>
           ) : (
-            <div className="space-y-3">
-              {filtered.map((o, i) => (
-                <OrderRow
-                  key={o.id}
-                  order={o}
-                  index={i}
-                  items={items[o.id]}
-                  onExpand={() => fetchItems(o.id)}
-                  onSetStatus={(s) => setStatus(o.id, s)}
-                  onTogglePaid={() => togglePaid(o.id, o.payment_status)}
-                />
-              ))}
-            </div>
+            <ProductsAdmin />
           )}
         </div>
       </main>
