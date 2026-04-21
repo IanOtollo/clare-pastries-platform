@@ -141,6 +141,24 @@
   }
   .btn-outline-light:hover { background: #fff; color: var(--cp-cta); }
 
+  .cp-input {
+    width: 100%;
+    background: var(--cp-bg);
+    color: var(--cp-text);
+    border: 1px solid var(--cp-border);
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+    font-family: var(--font-body);
+    font-size: 0.95rem;
+    transition: border-color 160ms ease, box-shadow 160ms ease;
+  }
+  .cp-input:focus {
+    outline: none;
+    border-color: var(--cp-accent);
+    box-shadow: 0 0 0 3px color-mix(in oklab, var(--cp-accent) 25%, transparent);
+  }
+  .cp-input::placeholder { color: var(--cp-text-muted); }
+
   .pulse-once { animation: pulseOnce 1.4s ease-out 1.2s 1; }
   @keyframes pulseOnce {
     0%, 100% { box-shadow: 0 0 0 0 rgba(196,154,42,0.5); }
