@@ -88,6 +88,13 @@ function Checkout() {
       setOrderId(order.id);
       clear();
       setStep(4);
+
+      // Fire-and-forget WhatsApp notification to Clare — never blocks the order
+      void fetch("/api/public/notify-order", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ orderId: order.id }),
+      }).catch(() => {});
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : "Could not place order. Please try again.");
     } finally {
