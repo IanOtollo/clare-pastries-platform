@@ -14,7 +14,174 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      order_items: {
+        Row: {
+          created_at: string
+          id: string
+          order_id: string
+          product_id: string
+          product_name: string
+          quantity: number
+          unit_price_kes: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          order_id: string
+          product_id: string
+          product_name: string
+          quantity: number
+          unit_price_kes: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          order_id?: string
+          product_id?: string
+          product_name?: string
+          quantity?: number
+          unit_price_kes?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "order_items_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "order_items_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      orders: {
+        Row: {
+          address_house: string | null
+          address_landmark: string | null
+          address_street: string | null
+          address_town: string | null
+          created_at: string
+          customer_email: string | null
+          customer_name: string
+          customer_phone: string
+          delivery_fee_kes: number
+          delivery_notes: string | null
+          delivery_phone: string | null
+          fulfillment: Database["public"]["Enums"]["fulfillment_type"]
+          id: string
+          order_notes: string | null
+          payment_method: Database["public"]["Enums"]["payment_method"] | null
+          payment_ref: string | null
+          payment_status: Database["public"]["Enums"]["payment_status"]
+          status: Database["public"]["Enums"]["order_status"]
+          subtotal_kes: number
+          total_kes: number
+          updated_at: string
+        }
+        Insert: {
+          address_house?: string | null
+          address_landmark?: string | null
+          address_street?: string | null
+          address_town?: string | null
+          created_at?: string
+          customer_email?: string | null
+          customer_name: string
+          customer_phone: string
+          delivery_fee_kes?: number
+          delivery_notes?: string | null
+          delivery_phone?: string | null
+          fulfillment: Database["public"]["Enums"]["fulfillment_type"]
+          id?: string
+          order_notes?: string | null
+          payment_method?: Database["public"]["Enums"]["payment_method"] | null
+          payment_ref?: string | null
+          payment_status?: Database["public"]["Enums"]["payment_status"]
+          status?: Database["public"]["Enums"]["order_status"]
+          subtotal_kes: number
+          total_kes: number
+          updated_at?: string
+        }
+        Update: {
+          address_house?: string | null
+          address_landmark?: string | null
+          address_street?: string | null
+          address_town?: string | null
+          created_at?: string
+          customer_email?: string | null
+          customer_name?: string
+          customer_phone?: string
+          delivery_fee_kes?: number
+          delivery_notes?: string | null
+          delivery_phone?: string | null
+          fulfillment?: Database["public"]["Enums"]["fulfillment_type"]
+          id?: string
+          order_notes?: string | null
+          payment_method?: Database["public"]["Enums"]["payment_method"] | null
+          payment_ref?: string | null
+          payment_status?: Database["public"]["Enums"]["payment_status"]
+          status?: Database["public"]["Enums"]["order_status"]
+          subtotal_kes?: number
+          total_kes?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      products: {
+        Row: {
+          allergens: string[]
+          available: boolean
+          category: string
+          created_at: string
+          description: string
+          featured: boolean
+          id: string
+          image_url: string | null
+          ingredients: string[]
+          name: string
+          price_kes: number
+          short_description: string
+          slug: string
+          updated_at: string
+        }
+        Insert: {
+          allergens?: string[]
+          available?: boolean
+          category: string
+          created_at?: string
+          description?: string
+          featured?: boolean
+          id?: string
+          image_url?: string | null
+          ingredients?: string[]
+          name: string
+          price_kes: number
+          short_description?: string
+          slug: string
+          updated_at?: string
+        }
+        Update: {
+          allergens?: string[]
+          available?: boolean
+          category?: string
+          created_at?: string
+          description?: string
+          featured?: boolean
+          id?: string
+          image_url?: string | null
+          ingredients?: string[]
+          name?: string
+          price_kes?: number
+          short_description?: string
+          slug?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -23,7 +190,18 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      fulfillment_type: "delivery" | "pickup"
+      order_status:
+        | "pending"
+        | "confirmed"
+        | "baking"
+        | "ready"
+        | "out_for_delivery"
+        | "delivered"
+        | "collected"
+        | "cancelled"
+      payment_method: "mpesa" | "card" | "cash"
+      payment_status: "unpaid" | "paid" | "refunded"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +328,20 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      fulfillment_type: ["delivery", "pickup"],
+      order_status: [
+        "pending",
+        "confirmed",
+        "baking",
+        "ready",
+        "out_for_delivery",
+        "delivered",
+        "collected",
+        "cancelled",
+      ],
+      payment_method: ["mpesa", "card", "cash"],
+      payment_status: ["unpaid", "paid", "refunded"],
+    },
   },
 } as const
