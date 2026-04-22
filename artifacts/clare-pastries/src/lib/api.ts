@@ -1,7 +1,5 @@
-const BASE = VITE_ENV.BASE_URL.replace(/\/$/, "") + "/api";
-
+const BASE = (import.meta.env.BASE_URL ?? "/").replace(/\/$/, "") + "/api";
 export type ApiError = { error: string; details?: unknown };
-
 async function handle<T>(res: Response): Promise<T> {
   if (!res.ok) {
     let msg = `${res.status} ${res.statusText}`;
@@ -16,12 +14,10 @@ async function handle<T>(res: Response): Promise<T> {
   if (res.status === 204) return undefined as T;
   return res.json();
 }
-
 export async function apiGet<T>(path: string): Promise<T> {
   const res = await fetch(`${BASE}${path}`, { credentials: "include" });
   return handle<T>(res);
 }
-
 export async function apiSend<T>(
   path: string,
   method: "POST" | "PATCH" | "PUT" | "DELETE",
