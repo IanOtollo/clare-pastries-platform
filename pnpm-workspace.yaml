@@ -32,6 +32,9 @@ catalog:
 minimumReleaseAge: 1440
 
 minimumReleaseAgeExclude:
+  - '@tailwindcss/*'
+  - 'tailwindcss'
+  - '@tailwindcss/node'
   - '@replit/*'
   - stripe-replit-sync
 
