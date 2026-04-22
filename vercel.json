@@ -1,6 +1,6 @@
 {
-  "installCommand": "npm ci --legacy-peer-deps",
-  "buildCommand": "npm run build",
+  "installCommand": "npm install -g pnpm && pnpm install",
+  "buildCommand": "pnpm run build",
   "outputDirectory": "dist",
   "framework": null,
   "rewrites": [
