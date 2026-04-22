@@ -170,6 +170,7 @@ export function Navbar({ transparentTop = false }: { transparentTop?: boolean })
             <nav className="flex-1 overflow-y-auto px-5 py-8 space-y-1">
               {[
                 ...NAV,
+                { to: "/account", label: "Sign in / Account" },
                 { to: "/menu", label: "Track My Order" },
                 { to: "/menu#custom-order", label: "Custom Order" },
               ].map((n, i) => (
