@@ -22,6 +22,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as OrdersIdRouteImport } from './routes/orders.$id'
 import { Route as MenuSlugRouteImport } from './routes/menu.$slug'
 import { Route as ApiPublicTrackOrderRouteImport } from './routes/api/public/track-order'
+import { Route as ApiPublicResetAdminPasswordRouteImport } from './routes/api/public/reset-admin-password'
 import { Route as ApiPublicPaymentStatusRouteImport } from './routes/api/public/payment-status'
 import { Route as ApiPublicPayheroInitiateRouteImport } from './routes/api/public/payhero-initiate'
 import { Route as ApiPublicPayheroCallbackRouteImport } from './routes/api/public/payhero-callback'
@@ -92,6 +93,12 @@ const ApiPublicTrackOrderRoute = ApiPublicTrackOrderRouteImport.update({
   path: '/api/public/track-order',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicResetAdminPasswordRoute =
+  ApiPublicResetAdminPasswordRouteImport.update({
+    id: '/api/public/reset-admin-password',
+    path: '/api/public/reset-admin-password',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicPaymentStatusRoute = ApiPublicPaymentStatusRouteImport.update({
   id: '/api/public/payment-status',
   path: '/api/public/payment-status',
@@ -132,6 +139,7 @@ export interface FileRoutesByFullPath {
   '/api/public/payhero-callback': typeof ApiPublicPayheroCallbackRoute
   '/api/public/payhero-initiate': typeof ApiPublicPayheroInitiateRoute
   '/api/public/payment-status': typeof ApiPublicPaymentStatusRoute
+  '/api/public/reset-admin-password': typeof ApiPublicResetAdminPasswordRoute
   '/api/public/track-order': typeof ApiPublicTrackOrderRoute
 }
 export interface FileRoutesByTo {
@@ -151,6 +159,7 @@ export interface FileRoutesByTo {
   '/api/public/payhero-callback': typeof ApiPublicPayheroCallbackRoute
   '/api/public/payhero-initiate': typeof ApiPublicPayheroInitiateRoute
   '/api/public/payment-status': typeof ApiPublicPaymentStatusRoute
+  '/api/public/reset-admin-password': typeof ApiPublicResetAdminPasswordRoute
   '/api/public/track-order': typeof ApiPublicTrackOrderRoute
 }
 export interface FileRoutesById {
@@ -171,6 +180,7 @@ export interface FileRoutesById {
   '/api/public/payhero-callback': typeof ApiPublicPayheroCallbackRoute
   '/api/public/payhero-initiate': typeof ApiPublicPayheroInitiateRoute
   '/api/public/payment-status': typeof ApiPublicPaymentStatusRoute
+  '/api/public/reset-admin-password': typeof ApiPublicResetAdminPasswordRoute
   '/api/public/track-order': typeof ApiPublicTrackOrderRoute
 }
 export interface FileRouteTypes {
@@ -192,6 +202,7 @@ export interface FileRouteTypes {
     | '/api/public/payhero-callback'
     | '/api/public/payhero-initiate'
     | '/api/public/payment-status'
+    | '/api/public/reset-admin-password'
     | '/api/public/track-order'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -211,6 +222,7 @@ export interface FileRouteTypes {
     | '/api/public/payhero-callback'
     | '/api/public/payhero-initiate'
     | '/api/public/payment-status'
+    | '/api/public/reset-admin-password'
     | '/api/public/track-order'
   id:
     | '__root__'
@@ -230,6 +242,7 @@ export interface FileRouteTypes {
     | '/api/public/payhero-callback'
     | '/api/public/payhero-initiate'
     | '/api/public/payment-status'
+    | '/api/public/reset-admin-password'
     | '/api/public/track-order'
   fileRoutesById: FileRoutesById
 }
@@ -249,6 +262,7 @@ export interface RootRouteChildren {
   ApiPublicPayheroCallbackRoute: typeof ApiPublicPayheroCallbackRoute
   ApiPublicPayheroInitiateRoute: typeof ApiPublicPayheroInitiateRoute
   ApiPublicPaymentStatusRoute: typeof ApiPublicPaymentStatusRoute
+  ApiPublicResetAdminPasswordRoute: typeof ApiPublicResetAdminPasswordRoute
   ApiPublicTrackOrderRoute: typeof ApiPublicTrackOrderRoute
 }
 
@@ -345,6 +359,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicTrackOrderRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/reset-admin-password': {
+      id: '/api/public/reset-admin-password'
+      path: '/api/public/reset-admin-password'
+      fullPath: '/api/public/reset-admin-password'
+      preLoaderRoute: typeof ApiPublicResetAdminPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/payment-status': {
       id: '/api/public/payment-status'
       path: '/api/public/payment-status'
@@ -402,6 +423,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicPayheroCallbackRoute: ApiPublicPayheroCallbackRoute,
   ApiPublicPayheroInitiateRoute: ApiPublicPayheroInitiateRoute,
   ApiPublicPaymentStatusRoute: ApiPublicPaymentStatusRoute,
+  ApiPublicResetAdminPasswordRoute: ApiPublicResetAdminPasswordRoute,
   ApiPublicTrackOrderRoute: ApiPublicTrackOrderRoute,
 }
 export const routeTree = rootRouteImport
