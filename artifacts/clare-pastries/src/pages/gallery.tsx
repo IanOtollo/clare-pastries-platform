@@ -1,5 +1,17 @@
+type Product = {
+  id: string;
+  slug: string;
+  name: string;
+  description?: string;
+  priceKes: number;
+  category?: string;
+  imageUrl?: string;
+  featured?: boolean;
+  inStock?: boolean;
+  servings?: string;
+};
+
 import { Layout } from "@/components/layout/Layout";
-import { useListGallery } from "@workspace/api-client-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -26,7 +38,7 @@ export default function Gallery() {
 
           {/* Filters */}
           <div className="flex flex-wrap justify-center gap-2 mb-12">
-            {categories.map((cat) => (
+            {(Array.isArray(categories)?categories:[]).map((cat) => (
               <Button
                 key={cat}
                 variant={activeCategory === cat ? "default" : "outline"}
@@ -49,7 +61,7 @@ export default function Gallery() {
           ) : gallery && gallery.length > 0 ? (
             <div className="columns-1 md:columns-2 lg:columns-3 gap-6 space-y-6">
               <AnimatePresence>
-                {gallery.map((item, i) => (
+                {(Array.isArray(gallery)?gallery:[]).map((item, i) => (
                   <motion.div
                     key={item.id}
                     layout

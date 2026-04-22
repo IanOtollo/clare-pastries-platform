@@ -1,5 +1,17 @@
+type Product = {
+  id: string;
+  slug: string;
+  name: string;
+  description?: string;
+  priceKes: number;
+  category?: string;
+  imageUrl?: string;
+  featured?: boolean;
+  inStock?: boolean;
+  servings?: string;
+};
+
 import { Link } from "wouter";
-import { Product } from "@workspace/api-client-react/src/generated/api.schemas";
 import { formatPrice, useCurrencyStore, useExchangeRate } from "@/store/use-currency";
 import { useCart } from "@/store/use-cart";
 import { Button } from "@/components/ui/button";

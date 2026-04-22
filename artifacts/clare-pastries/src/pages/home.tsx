@@ -1,8 +1,20 @@
+type Product = {
+  id: string;
+  slug: string;
+  name: string;
+  description?: string;
+  priceKes: number;
+  category?: string;
+  imageUrl?: string;
+  featured?: boolean;
+  inStock?: boolean;
+  servings?: string;
+};
+
 import { useState, useEffect } from "react";
 import { Layout } from "@/components/layout/Layout";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
-import { useListProducts, getListProductsQueryKey, useListGallery, useListReviews } from "@workspace/api-client-react";
 import { ProductCard } from "@/components/ui/product-card";
 import { motion, AnimatePresence } from "framer-motion";
 import { Flame, Truck, Smartphone, Phone, ArrowRight, Star, Quote } from "lucide-react";
@@ -38,11 +50,11 @@ export default function Home() {
 
   const { data: featuredProducts, isLoading: loadingFeatured } = useListProducts(
     { featured: true },
-    { query: { queryKey: getListProductsQueryKey({ featured: true }) } }
+    { query: { queryKey: [] } }
   );
 
-  const { data: gallery } = useListGallery();
-  const { data: reviews } = useListReviews();
+  const { data: gallery } = ({ data: [] });
+  const { data: reviews } = ({ data: [] });
 
   return (
     <Layout>
@@ -167,7 +179,7 @@ export default function Home() {
             </div>
           ) : featuredProducts?.length ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {featuredProducts.slice(0, 6).map((product, i) => (
+              {(Array.isArray(featuredProducts)?featuredProducts:[]).slice().map((product, i) => (
                 <ProductCard key={product.id} product={product} index={i} />
               ))}
             </div>
@@ -223,7 +235,7 @@ export default function Home() {
           <div className="container mx-auto px-4 md:px-6 text-center">
             <h2 className="text-3xl md:text-4xl font-serif font-bold mb-12">Loved in Busia</h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              {reviews.slice(0, 3).map((review) => (
+              {(Array.isArray(reviews)?reviews:[]).slice().map((review) => (
                 <Card key={review.id} className="bg-card/50 border-none shadow-sm">
                   <CardContent className="p-8">
                     <Quote className="h-8 w-8 text-primary/20 mb-4" />

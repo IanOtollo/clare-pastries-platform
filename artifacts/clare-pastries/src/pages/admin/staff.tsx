@@ -81,7 +81,7 @@ export default function AdminStaff() {
         description: roleForm.description,
         permissions: roleForm.permissions
           .split(",")
-          .map((p) => p.trim())
+          .map((p as any) => p.trim())
           .filter(Boolean),
       }),
     onSuccess: () => {
@@ -177,7 +177,7 @@ export default function AdminStaff() {
                   <td className="px-4 py-3">{r.description ?? "—"}</td>
                   <td className="px-4 py-3">
                     <div className="flex flex-wrap gap-1">
-                      {(r.permissions ?? []).map((p) => (
+                      {(r.permissions ?? []).map((p as any) => (
                         <Badge key={p} variant="outline">
                           {p}
                         </Badge>

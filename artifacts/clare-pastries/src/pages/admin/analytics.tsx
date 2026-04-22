@@ -84,7 +84,7 @@ export default function AdminAnalytics() {
                   </tr>
                 </thead>
                 <tbody>
-                  {data.topProducts.map((p) => (
+                  {data.topProducts.map((p as any) => (
                     <tr key={p.name} className="border-t border-border">
                       <td className="py-2">{p.name}</td>
                       <td className="py-2 text-right">{p.qty}</td>

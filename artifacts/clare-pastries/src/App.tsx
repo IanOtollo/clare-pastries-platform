@@ -24,7 +24,14 @@ import AdminAnalytics from "@/pages/admin/analytics";
 import AdminStaff from "@/pages/admin/staff";
 import AdminSettings from "@/pages/admin/settings";
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: 1,
+      staleTime: 30000,
+    },
+  },
+});
 
 function Router() {
   return (
@@ -59,7 +66,7 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
-        <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
+        <WouterRouter base="">
           <Router />
         </WouterRouter>
         <Toaster />

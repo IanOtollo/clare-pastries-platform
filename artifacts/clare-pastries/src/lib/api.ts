@@ -1,4 +1,4 @@
-const BASE = import.meta.env.BASE_URL.replace(/\/$/, "") + "/api";
+const BASE = VITE_ENV.BASE_URL.replace(/\/$/, "") + "/api";
 
 export type ApiError = { error: string; details?: unknown };
 

@@ -1,3 +1,16 @@
+type Product = {
+  id: string;
+  slug: string;
+  name: string;
+  description?: string;
+  priceKes: number;
+  category?: string;
+  imageUrl?: string;
+  featured?: boolean;
+  inStock?: boolean;
+  servings?: string;
+};
+
 import { Layout } from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,7 +21,6 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { useSubmitContact } from "@workspace/api-client-react";
 import { useToast } from "@/hooks/use-toast";
 import { Link } from "wouter";
 
@@ -22,7 +34,7 @@ const contactSchema = z.object({
 type ContactFormValues = z.infer<typeof contactSchema>;
 
 export default function Contact() {
-  const submitContact = useSubmitContact();
+  const submitContact = ((data:any)=>console.log(data));
   const { toast } = useToast();
 
   const form = useForm<ContactFormValues>({

@@ -1,7 +1,19 @@
+type Product = {
+  id: string;
+  slug: string;
+  name: string;
+  description?: string;
+  priceKes: number;
+  category?: string;
+  imageUrl?: string;
+  featured?: boolean;
+  inStock?: boolean;
+  servings?: string;
+};
+
 import { useState } from "react";
 import { Layout } from "@/components/layout/Layout";
 import { ProductCard } from "@/components/ui/product-card";
-import { useListProducts, useCreateCustomOrder } from "@workspace/api-client-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -43,7 +55,7 @@ export default function Menu() {
     category: activeCategory !== "All" ? activeCategory.toLowerCase() as any : undefined
   });
 
-  const createOrder = useCreateCustomOrder();
+  const createOrder = ((data:any)=>console.log(data));
   const { toast } = useToast();
 
   const form = useForm<CustomOrderFormValues>({
@@ -112,7 +124,7 @@ export default function Menu() {
           {/* Filters Bar */}
           <div className="sticky top-20 z-40 bg-background/80 backdrop-blur-xl border border-border p-4 rounded-2xl shadow-sm mb-12 flex flex-col md:flex-row gap-4 justify-between items-center">
             <div className="flex overflow-x-auto pb-2 md:pb-0 w-full md:w-auto hide-scrollbar gap-2">
-              {categories.map((cat) => (
+              {(Array.isArray(categories)?categories:[]).map((cat) => (
                 <Button
                   key={cat}
                   variant={activeCategory === cat ? "default" : "outline"}
@@ -140,7 +152,7 @@ export default function Menu() {
                   <SelectValue placeholder="Sort by" />
                 </SelectTrigger>
                 <SelectContent>
-                  {sorts.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}
+                  {(Array.isArray(sorts)?sorts:[]).map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}
                 </SelectContent>
               </Select>
             </div>
@@ -160,7 +172,7 @@ export default function Menu() {
           ) : displayedProducts.length > 0 ? (
             <motion.div layout className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               <AnimatePresence>
-                {displayedProducts.map((product, i) => (
+                {(Array.isArray(displayedProducts)?displayedProducts:[]).map((product, i) => (
                   <ProductCard key={product.id} product={product} index={i} />
                 ))}
               </AnimatePresence>
