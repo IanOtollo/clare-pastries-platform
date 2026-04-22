@@ -121,9 +121,9 @@ export function Navbar({ transparentTop = false }: { transparentTop?: boolean })
 
             <Link
               to="/account"
-              aria-label="Account"
+              aria-label="Account / Sign in"
               className={[
-                "hidden md:inline-flex items-center justify-center h-9 w-9 rounded-full transition-colors",
+                "inline-flex items-center justify-center h-9 w-9 rounded-full transition-colors",
                 showSolid ? "hover:bg-[var(--cp-surface-2)] text-[var(--cp-text)]" : "hover:bg-white/15 text-white",
               ].join(" ")}
             >
