@@ -1,5 +1,4 @@
 {
-<<<<<<< HEAD
   "extends": "./tsconfig.base.json",
   "compileOnSave": false,
   "files": [],
@@ -14,31 +13,4 @@
       "path": "./lib/api-zod"
     }
   ]
-=======
-  "include": ["src/**/*.ts", "src/**/*.tsx", "vite.config.ts", "eslint.config.js"],
-  "compilerOptions": {
-    "target": "ES2022",
-    "jsx": "react-jsx",
-    "module": "ESNext",
-    "lib": ["ES2022", "DOM", "DOM.Iterable"],
-    "types": ["vite/client"],
-
-    /* Bundler mode */
-    "moduleResolution": "Bundler",
-    "allowImportingTsExtensions": true,
-    "verbatimModuleSyntax": false,
-    "noEmit": true,
-
-    /* Linting */
-    "skipLibCheck": true,
-    "strict": true,
-    "noUnusedLocals": false,
-    "noUnusedParameters": false,
-    "noFallthroughCasesInSwitch": true,
-    "noUncheckedSideEffectImports": true,
-    "paths": {
-      "@/*": ["./src/*"]
-    }
-  }
->>>>>>> a95c2e1dc96bd85faa20ebd489f6fbb0b3691dc8
 }
