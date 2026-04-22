@@ -1,0 +1,167 @@
+@import "tailwindcss" source(none);
+@source "../src";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is([data-theme="dark"] *));
+
+@theme inline {
+  --font-display: "Cormorant Garamond", ui-serif, Georgia, serif;
+  --font-body: "Jost", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "DM Mono", ui-monospace, "SF Mono", Menlo, monospace;
+
+  --color-bg: var(--cp-bg);
+  --color-surface: var(--cp-surface);
+  --color-surface-2: var(--cp-surface-2);
+  --color-border: var(--cp-border);
+  --color-text: var(--cp-text);
+  --color-text-muted: var(--cp-text-muted);
+  --color-accent: var(--cp-accent);
+  --color-accent-dark: var(--cp-accent-dark);
+  --color-cta: var(--cp-cta);
+  --color-cta-hover: var(--cp-cta-hover);
+  --color-cta-text: var(--cp-cta-text);
+  --color-success: var(--cp-success);
+  --color-error: var(--cp-error);
+
+  --shadow-sm: 0 1px 3px rgba(26,20,16,0.08);
+  --shadow-md: 0 4px 16px rgba(26,20,16,0.10);
+  --shadow-lg: 0 12px 40px rgba(26,20,16,0.14);
+  --shadow-hover: 0 8px 32px rgba(26,20,16,0.16);
+
+  --radius-card: 12px;
+
+  /* Tokens kept for any shadcn primitives that reference them */
+  --color-background: var(--cp-bg);
+  --color-foreground: var(--cp-text);
+  --color-card: var(--cp-surface);
+  --color-card-foreground: var(--cp-text);
+  --color-popover: var(--cp-surface);
+  --color-popover-foreground: var(--cp-text);
+  --color-primary: var(--cp-cta);
+  --color-primary-foreground: var(--cp-cta-text);
+  --color-secondary: var(--cp-surface-2);
+  --color-secondary-foreground: var(--cp-text);
+  --color-muted: var(--cp-surface-2);
+  --color-muted-foreground: var(--cp-text-muted);
+  --color-destructive: var(--cp-error);
+  --color-destructive-foreground: var(--cp-cta-text);
+  --color-input: var(--cp-border);
+  --color-ring: var(--cp-accent);
+  --color-ring-offset-background: var(--cp-bg);
+}
+
+:root {
+  --cp-bg: #F9F5EF;
+  --cp-surface: #F2EDE4;
+  --cp-surface-2: #EAE3D8;
+  --cp-border: #DDD5C8;
+  --cp-text: #1A1410;
+  --cp-text-muted: #6B6058;
+  --cp-accent: #C49A2A;
+  --cp-accent-dark: #9E7A1A;
+  --cp-cta: #2A1A0E;
+  --cp-cta-hover: #3D2818;
+  --cp-cta-text: #F9F5EF;
+  --cp-success: #3A6B35;
+  --cp-error: #8B1A1A;
+}
+
+[data-theme="dark"] {
+  --cp-bg: #1A1410;
+  --cp-surface: #241C17;
+  --cp-surface-2: #2E2420;
+  --cp-border: #3D3028;
+  --cp-text: #F5F0E8;
+  --cp-text-muted: #A89880;
+  --cp-accent: #C49A2A;
+  --cp-accent-dark: #E0B43A;
+  --cp-cta: #C49A2A;
+  --cp-cta-hover: #DDB13A;
+  --cp-cta-text: #1A1410;
+  --cp-success: #6BAA64;
+  --cp-error: #D04B4B;
+}
+
+/* Seasonal overrides — only color tokens + ::before watermark */
+[data-season="valentines"] { --cp-accent: #C0395A; --cp-accent-dark: #8E1F3F; --cp-cta: #7A1A30; --cp-cta-hover: #9B2440; }
+[data-season="easter"] { --cp-accent: #4A7A35; --cp-accent-dark: #2F5520; --cp-cta: #1E3D10; --cp-cta-hover: #2D5818; }
+[data-season="halloween"] { --cp-accent: #C45E0A; --cp-accent-dark: #934505; --cp-cta: #5A2000; --cp-cta-hover: #7A2E0A; }
+[data-season="christmas"] { --cp-accent: #9B1C1C; --cp-accent-dark: #6E1212; --cp-cta: #14401A; --cp-cta-hover: #1E5526; }
+[data-season="newyear"] { --cp-accent: #3A3A8A; --cp-accent-dark: #25255A; --cp-cta: #12124A; --cp-cta-hover: #1F1F66; }
+
+@layer base {
+  * { border-color: var(--color-border); }
+  html, body { background-color: var(--color-bg); color: var(--color-text); }
+  body { font-family: var(--font-body); font-weight: 400; -webkit-font-smoothing: antialiased; }
+  h1, h2, h3, h4, h5 { font-family: var(--font-display); font-weight: 500; letter-spacing: -0.01em; }
+}
+
+@layer utilities {
+  .font-display { font-family: var(--font-display); }
+  .font-body { font-family: var(--font-body); }
+  .font-mono { font-family: var(--font-mono); }
+  .label-eyebrow { font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--cp-accent); }
+  .container-cp { width: 100%; max-width: 1280px; margin-inline: auto; padding-inline: 1.25rem; }
+  @media (min-width: 768px) { .container-cp { padding-inline: 2rem; } }
+
+  .cp-card {
+    background: var(--cp-surface);
+    border: 1px solid var(--cp-border);
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-sm);
+    transition: transform 220ms ease, box-shadow 220ms ease;
+  }
+  .cp-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-hover); }
+
+  .btn-cta {
+    display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem;
+    background: var(--cp-cta); color: var(--cp-cta-text);
+    padding: 0.875rem 1.75rem; border-radius: 8px;
+    font-family: var(--font-body); font-weight: 500; font-size: 1rem;
+    transition: transform 180ms ease, background 180ms ease, box-shadow 180ms ease;
+    box-shadow: var(--shadow-sm);
+  }
+  .btn-cta:hover { background: var(--cp-cta-hover); transform: translateY(-1px); box-shadow: var(--shadow-md); }
+
+  .btn-accent {
+    display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem;
+    background: var(--cp-accent); color: #1A1410;
+    padding: 1rem 2.5rem; border-radius: 6px;
+    font-family: var(--font-body); font-weight: 500; font-size: 1rem;
+    transition: transform 180ms ease, box-shadow 180ms ease;
+  }
+  .btn-accent:hover { transform: scale(1.02); box-shadow: var(--shadow-hover); }
+
+  .btn-outline-light {
+    display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem;
+    background: transparent; color: #fff; border: 1.5px solid #fff;
+    padding: 0.875rem 1.75rem; border-radius: 8px;
+    font-family: var(--font-body); font-weight: 500;
+    transition: all 180ms ease;
+  }
+  .btn-outline-light:hover { background: #fff; color: var(--cp-cta); }
+
+  .cp-input {
+    width: 100%;
+    background: var(--cp-bg);
+    color: var(--cp-text);
+    border: 1px solid var(--cp-border);
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+    font-family: var(--font-body);
+    font-size: 0.95rem;
+    transition: border-color 160ms ease, box-shadow 160ms ease;
+  }
+  .cp-input:focus {
+    outline: none;
+    border-color: var(--cp-accent);
+    box-shadow: 0 0 0 3px color-mix(in oklab, var(--cp-accent) 25%, transparent);
+  }
+  .cp-input::placeholder { color: var(--cp-text-muted); }
+
+  .pulse-once { animation: pulseOnce 1.4s ease-out 1.2s 1; }
+  @keyframes pulseOnce {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(196,154,42,0.5); }
+    50% { box-shadow: 0 0 0 18px rgba(196,154,42,0); }
+  }
+}
