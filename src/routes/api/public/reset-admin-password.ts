@@ -32,9 +32,9 @@ export const Route = createFileRoute("/api/public/reset-admin-password")({
             headers: { "content-type": "application/json" },
           });
         }
-        if (!newPassword || newPassword.length < 8) {
+        if (!newPassword || newPassword.length < 6) {
           return new Response(
-            JSON.stringify({ error: "password param required (min 8 chars)" }),
+            JSON.stringify({ error: "password param required (min 6 chars)" }),
             { status: 400, headers: { "content-type": "application/json" } },
           );
         }
