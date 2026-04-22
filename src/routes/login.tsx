@@ -105,7 +105,7 @@ function LoginPage() {
                 <input
                   type={showPw ? "text" : "password"}
                   required
-                  minLength={6}
+                  minLength={5}
                   autoComplete={mode === "signup" ? "new-password" : "current-password"}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
