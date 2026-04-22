@@ -1,0 +1,31 @@
+kind = "web"
+previewPath = "/"
+title = "Clare Pastries"
+version = "1.0.0"
+id = "artifacts/clare-pastries"
+router = "path"
+
+[[integratedSkills]]
+name = "react-vite"
+version = "1.0.0"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 23577
+
+[services.development]
+run = "pnpm --filter @workspace/clare-pastries run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/clare-pastries", "run", "build" ]
+publicDir = "artifacts/clare-pastries/dist/public"
+serve = "static"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "23577"
+BASE_PATH = "/"

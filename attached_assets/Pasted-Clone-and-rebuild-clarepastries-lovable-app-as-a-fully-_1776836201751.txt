@@ -1,0 +1,696 @@
+Clone and rebuild clarepastries.lovable.app 
+as a fully working Next.js 15 application
+deployable on Vercel.
+
+This is NOT a new design. Clone the exact 
+UI, layout, copy, structure, and functionality
+from clarepastries.lovable.app exactly as it
+appears — then wire up all the backend 
+services so everything actually works.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+WHAT TO CLONE — EXACT UI FROM LOVABLE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Clone every page exactly as scraped below.
+Same copy, same section order, same structure.
+Only change: remove Lovable badge, wire backend.
+
+NAVBAR (identical on all pages):
+  LEFT: Wheat SVG icon + "Clare Pastries" 
+    wordmark (Cormorant Garamond)
+  CENTER: Home | Menu | Gallery | Contact
+  RIGHT: [KES|UGX pill toggle] 
+         [Sun/Moon dark mode]
+         [ShoppingBag + count badge]
+         [UserCircle2 account icon]
+  
+  Mobile: logo + cart + hamburger
+  Hamburger menu:
+    Home, Menu, Gallery, Contact,
+    Track My Order, Custom Order
+    Currency toggle, Dark mode toggle
+    +254 724 848228 (call button)
+    WhatsApp Clare button
+
+HOMEPAGE (/):
+  Section 1 — Hero (100svh):
+    Seasonal label: "BAKED IN BUSIA · MADE WITH LOVE"
+    Headline: "Every Bite, a Celebration."
+    Sub: "Freshly baked pastries, cakes, and more —
+    handcrafted by Clare in Busia, delivered to 
+    your door."
+    CTA primary: "Order Your First Pastry from Clare →"
+      (personalized via cookie — return visitors
+      see rotating messages)
+    CTA secondary: "Browse the Menu →"
+    Trust pills:
+      Busia Town, Kenya
+      45–90 min Delivery
+      M-Pesa Accepted
+    Background: slideshow of 5 Unsplash pastry
+    lifestyle images (crossfade, 5s interval)
+    ALL 5 images preloaded — no lazy loading:
+      https://images.unsplash.com/photo-1464349095431-e9a21285b5f3?w=1920&q=90
+      https://images.unsplash.com/photo-1486427944299-d1955d23e34d?w=1920&q=90
+      https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1920&q=90
+      https://images.unsplash.com/photo-1517433670267-08bbd4be890f?w=1920&q=90
+      https://images.unsplash.com/photo-1509440159596-0249088772ff?w=1920&q=90
+
+  Section 2 — Trust Bar:
+    [Flame] Baked Fresh Daily
+    [Truck] Delivered in Busia Town
+    [Smartphone] Pay via M-Pesa
+    [Phone] +254 724 848228 (tappable)
+
+  Section 3 — Story Strip:
+    Label: "The Craft"
+    Title: "From Our Hands to Your Table."
+    Frame 1: [Wheat icon] "The Finest Ingredients"
+      "Every bake starts with carefully selected
+      local ingredients — flour, fresh eggs,
+      real butter, and Clare's secret touch."
+    Frame 2: [Hands icon] "Crafted by Hand"
+      "No shortcuts. No machines doing the work.
+      Every loaf, every layer, every swirl of
+      frosting is shaped by Clare herself."
+    Frame 3: [Cake icon] "Fresh to Your Door"
+      "Warm, fragrant, and made that morning.
+      From our oven in Busia Town to your
+      table — within 45 to 90 minutes."
+
+  Section 4 — Featured Bakes:
+    Label: "From the Oven"
+    Title: "Our Most Loved Bakes"
+    Products from Sanity (featured=true, max 6)
+    Empty state (if Sanity empty):
+      [Oven icon] "Clare is warming up the oven.
+      Our menu will be ready very soon!"
+    "See Full Menu →" link
+    3-col desktop, 2 tablet, 1 mobile grid
+
+  Section 5 — How It Works:
+    Label: "How It Works"
+    Title: "Three Simple Steps."
+    Step 01: [Search] "Browse & Choose"
+      "Explore Clare's daily selection..."
+    Step 02: [ShoppingCart] "Place Your Order"
+      "Quick checkout with M-Pesa or card..."
+    Step 03: [ChefHat] "Clare Gets Baking"
+      "Your order goes straight to Clare..."
+    Large faded step numbers behind icons
+
+  Section 6 — Custom Order Teaser:
+    Title: "Something Unique in Mind?"
+    Body: "Wedding cake? Birthday surprise?
+    Office treats? Tell Clare exactly what you
+    want and she'll make it happen."
+    CTA: "Start a Custom Order →" → /menu#custom-order
+
+  Section 7 — Gallery Teaser:
+    Only renders if Sanity gallery has images
+    If empty: hidden completely
+
+  Section 8 — Reviews:
+    Only renders if DB has approved reviews
+    If empty: hidden completely
+
+  Section 9 — Final CTA:
+    Label: "Order Now"
+    Title: "Ready to Taste Clare's Best?"
+    Sub: "Order now and have fresh pastries
+    at your door in under 90 minutes."
+    [Order Now →] [+254 724 848228]
+
+FOOTER (identical all pages):
+  Left: Clare Pastries logo + tagline +
+    "Busia Town, Kenya" + dark mode toggle
+  Center: "Quick Links"
+    Home | Menu | Gallery | About |
+    Contact | Track Order |
+    Privacy Policy | Terms
+  Right: "Reach Clare"
+    +254 724 848228 (tappable)
+    WhatsApp Clare → wa.me/254724848228
+    "We Accept:" M-PESA | CARD | CASH
+  Bottom: © 2026 Clare Pastries. All rights reserved.
+    Handcrafted by IanOtollo at IOMTechs
+  
+  REMOVE: "Edit with Lovable" badge entirely
+  That bottom-right badge must not exist
+
+MENU PAGE (/menu):
+  Label: "The Bakeshop"
+  Title: "The Menu."
+  Sub: "Handcrafted daily in Busia with
+  the finest local ingredients."
+  
+  Filter bar (sticky):
+    Pills: All | Cakes | Pastries | Breads | Seasonal
+    Sort: Featured | Price Low→High | Price High→Low
+    Search (instant client-side)
+  
+  Product grid (from Sanity):
+    Loading: skeleton shimmer
+    Empty: Clare oven warm message
+    Out of stock: last, 60% opacity
+  
+  Custom Order Section (#custom-order):
+    Label: "Bespoke"
+    Title: "Order Something Made Just for You"
+    Sub: "From wedding cakes to themed birthday
+    pastries — describe your vision and Clare
+    will get back to you within 24 hours."
+    
+    Full form (exactly as on Lovable):
+      Full Name*
+      Phone* (+254/+256 prefix toggle)
+      Email (optional)
+      Occasion* (Birthday|Wedding|Anniversary|
+        Office Event|Religious Celebration|Other)
+      What would you like?* (textarea)
+      Servings (number)
+      Preferred Date (date picker)
+      Budget Range (Under KES 1,000|1,000-3,000|
+        3,000-8,000|8,000+|Not sure)
+      Fulfillment (Delivery|Pickup radio cards)
+    
+    "Send My Request to Clare →" button
+    "Prefer to chat directly? WhatsApp Clare →"
+
+GALLERY PAGE (/gallery):
+  Label: "The Bakes"
+  Title: "Fresh From Our Oven."
+  Sub: "Every photo here is a real bake 
+  from Clare's kitchen."
+  
+  Filter pills: All | Cakes | Pastries |
+    Breads | Custom Orders | Seasonal
+  
+  Masonry grid (CSS columns, no JS lib):
+    Desktop 3 cols, tablet 2, mobile 1
+  
+  Each image:
+    Hover: dark overlay + title + category
+    "Order This →" if linked product
+  
+  If empty: Clare seasonal warm message
+
+ABOUT PAGE (/about):
+  Label: "Our Story"
+  Title: "The Story Behind Clare Pastries."
+  
+  "Who is Clare?"
+  "Clare Pastries is a homegrown artisan
+  bakery in the heart of Busia Town, Kenya.
+  Every product is made to order — fresh,
+  never frozen, never mass-produced. Just
+  honest baking, done with love."
+  
+  3 pillars:
+    "Made with Love" — hand crafted
+    "Fresh Daily" — baked every morning
+    "Proudly Local" — Busia Town
+  
+  "Come Find Us"
+  Busia Town, Kenya
+  [Call Clare] [WhatsApp]
+
+CONTACT PAGE (/contact):
+  Label: "Get in Touch"
+  Title: "Let's Talk Pastries."
+  Sub: "Clare will get back to you as 
+  soon as possible."
+  
+  Card 1: "Call or WhatsApp Clare"
+    +254 724 848228
+    [Call Now] [WhatsApp]
+  
+  Card 2: "Ready to Order?"
+    "Browse our menu and place your
+    order directly online."
+    [Browse Menu →]
+  
+  "Find Clare" — Busia Town, Kenya
+
+CART PAGE (/cart):
+  If empty:
+    "Your Cart" title
+    "Your cart is empty."
+    "Browse Clare's menu and add 
+    something delicious."
+    [Browse Menu →]
+  
+  If has items:
+    2-col desktop, 1-col mobile
+    Items: image, name, qty controls,
+      price, remove button
+    Summary: subtotal, delivery, total
+    [Proceed to Checkout →]
+
+ACCOUNT PAGE (/account):
+  If NOT logged in:
+    Show login/register tabs
+    Login tab:
+      Email + Password
+      "Sign In" button
+      "Forgot password?" link
+      "Continue as Guest" link → /menu
+    Register tab:
+      Name + Email + Password + Confirm
+      "Create Account" button
+      "Guest checkout available" note
+    
+    ADMIN ACCESS:
+      If user logs in with admin credentials
+      (role=ADMIN in DB):
+        Redirect to /admin dashboard
+        NOT the customer account page
+  
+  If logged in as CUSTOMER:
+    "My Account" with tabs:
+      Orders | Addresses | Settings
+    Orders tab: order history list
+    Each order: ID, date, status, total
+    Click → /orders/[id]
+  
+  If logged in as ADMIN:
+    Redirect immediately to /admin
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ADMIN DASHBOARD (/admin/*)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Admin accesses via /account login page.
+Admin credentials:
+  Email: clare@admin.co
+  Password: 123456
+  Role: ADMIN (seeded in DB)
+
+After login: redirect to /admin
+
+/admin is completely separate from 
+customer-facing pages.
+Does NOT use customer design system.
+Pure functional admin UI (Inter font,
+neutral colors, Lucide icons only).
+
+Admin layout:
+  Fixed sidebar (desktop)
+  Bottom tab bar (mobile)
+  Top bar with notifications + avatar
+
+Admin pages (all fully implemented):
+  /admin → Dashboard (live stats + orders)
+  /admin/orders → Orders list + detail
+  /admin/pos → Point of Sale
+  /admin/products → Product management
+  /admin/products/new → Add product
+  /admin/products/[id] → Edit product
+  /admin/gallery → Gallery management
+  /admin/gallery/upload → Upload photos
+  /admin/customers → Customer list
+  /admin/custom-orders → Custom requests
+  /admin/custom-orders/[id] → Detail
+  /admin/offers → Deals management
+  /admin/offers/new → Create offer
+  /admin/analytics → Charts + stats
+  /admin/staff → Staff management
+  /admin/staff/new → Add staff
+  /admin/staff/roles → Roles list
+  /admin/staff/roles/new → Create role
+  /admin/staff/roles/[id] → Edit role
+  /admin/settings → Business settings
+  /admin/unauthorized → Access denied
+
+Admin protected by middleware:
+  All /admin/* routes require ADMIN role
+  Redirect to /account if not authenticated
+  Redirect to /admin/unauthorized if
+    wrong role
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+TECH STACK
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Next.js 15 (App Router)
+React 19
+TypeScript (strict mode)
+Tailwind CSS
+Framer Motion
+Zustand (cart + currency)
+React Hook Form + Zod
+Prisma ORM (standard client — NOT edge)
+Supabase PostgreSQL
+Supabase Realtime
+Sanity.io (project: clarepastries, 
+  dataset: production)
+NextAuth.js v5
+PayHero (M-Pesa STK Push)
+Stripe (card payments)
+web-push (browser notifications)
+Frankfurter API (KES/UGX rate)
+CallMeBot (WhatsApp to Clare)
+Upstash Redis (caching + rate limiting)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+DESIGN SYSTEM — CUSTOMER SITE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Fonts (Google Fonts, preconnect):
+  Cormorant Garamond (display/headlines)
+  Jost (body/UI)
+  DM Mono (prices/labels/IDs)
+
+Light mode:
+  --cp-bg:         #F9F5EF
+  --cp-surface:    #F2EDE4
+  --cp-surface-2:  #EAE3D8
+  --cp-border:     #DDD5C8
+  --cp-text:       #1A1410
+  --cp-text-muted: #6B6058
+  --cp-accent:     #C49A2A
+  --cp-cta:        #2A1A0E
+  --cp-cta-text:   #F9F5EF
+
+Dark mode ([data-theme="dark"]):
+  --cp-bg:         #1A1410
+  --cp-surface:    #241C17
+  --cp-surface-2:  #2E2420
+  --cp-border:     #3D3028
+  --cp-text:       #F5F0E8
+  --cp-text-muted: #A89880
+  --cp-accent:     #C49A2A
+  --cp-cta:        #C49A2A
+  --cp-cta-text:   #1A1410
+
+Dark mode: no flash on reload
+  Inline script in <head>:
+  (function(){
+    var t=localStorage.getItem('cp-theme');
+    if(t)document.documentElement
+      .setAttribute('data-theme',t);
+  })();
+
+Seasonal theme engine (client-side):
+  Valentine's Feb 1-14: accent #C0395A
+  Easter (dynamic): accent #4A7A35
+  Halloween Oct 1-31: accent #C45E0A
+  Christmas Dec 1-25: accent #9B1C1C
+  New Year Dec 26-Jan 1: accent #3A3A8A
+  Default: base palette
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+DATABASE SEED
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Create prisma/seed.ts:
+  Creates admin user if not exists:
+    email: clare@admin.co
+    password: hash of "123456" (bcrypt)
+    role: ADMIN
+    name: Clare
+    isSuperAdmin: true
+
+Add to package.json:
+  "prisma": {
+    "seed": "ts-node prisma/seed.ts"
+  }
+
+Run: npx prisma db seed
+  (after migration)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+CHECKOUT FLOW (5-step baking journey)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+/checkout — full multi-step flow
+Guest checkout always available (no login req)
+
+Stepper (top of page, all steps):
+  [Wheat] Your Order →
+  [Flame] Your Details →
+  [Package] Summary →
+  [Smartphone] Payment →
+  [CheckCircle] Confirmed
+
+Step 1 — Your Order:
+  Cart summary (read-only)
+  Fulfillment cards: Delivery | Pickup
+  If Delivery: Street*, Landmark*,
+    Building (optional), Town*, 
+    Delivery Phone*, Notes (optional)
+  If Pickup: Clare's Kitchen info + call link
+
+Step 2 — Your Details:
+  Name*, Phone* (+254/+256 toggle), Email
+  "Save details" checkbox (soft account)
+
+Step 3 — Summary:
+  Full order recap + edit links
+  Totals (KES + UGX)
+
+Step 4 — Payment:
+  M-Pesa (PayHero STK Push) — PRIMARY
+    Phone field + amount
+    "Send M-Pesa Prompt →"
+    Paybill: 714888 | Account: 257457
+    Waiting state: phone pulse animation
+    Poll payment status every 3s
+    120s timeout with retry
+  
+  Card (Stripe) — SECONDARY
+    Stripe Elements
+  
+  Pay on Delivery — TERTIARY
+    Cash option, creates UNPAID order
+
+Step 5 — Confirmed:
+  Flour sprinkle particles (40 Framer Motion)
+  Order ID (copyable)
+  "Track Your Order →"
+  Delivery/pickup estimate
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ORDER TRACKING (/orders/[id])
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Public via token — no login needed
+Supabase Realtime live updates
+
+Visual timeline:
+  PENDING → CONFIRMED → BAKING → READY →
+  OUT_FOR_DELIVERY → DELIVERED
+  (PICKUP: → COLLECTED)
+
+Contact card: +254 724 848228
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+API ROUTES (ALL standard Node.js runtime)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+CRITICAL: Every API route must use
+standard Node.js runtime (default).
+
+REMOVE from every file if present:
+  export const runtime = 'edge'
+  export const runtime = 'experimental-edge'
+
+Routes needed:
+  POST /api/orders
+  GET  /api/orders/[id]
+  GET  /api/orders/[id]/payment-status
+  POST /api/checkout/payhero
+  POST /api/checkout/payhero/callback
+  POST /api/checkout/stripe
+  POST /api/webhook/stripe
+  GET  /api/products
+  GET  /api/products/[slug]
+  GET  /api/gallery
+  GET  /api/settings
+  POST /api/custom-orders
+  POST /api/reviews
+  POST /api/consent
+  GET  /api/currency
+  POST /api/revalidate
+  POST /api/push/subscribe
+  POST /api/auth/[...nextauth]
+  
+  Admin routes:
+  GET/POST /api/admin/orders
+  PATCH    /api/admin/orders/[id]/status
+  PATCH    /api/admin/orders/[id]/payment
+  GET/POST /api/admin/products
+  POST     /api/admin/upload-image
+  GET/PATCH/DELETE /api/admin/products/[id]
+  GET/POST /api/admin/gallery
+  DELETE   /api/admin/gallery/[id]
+  GET      /api/admin/customers
+  GET/PATCH /api/admin/custom-orders/[id]
+  GET/POST /api/admin/offers
+  PATCH/DELETE /api/admin/offers/[id]
+  GET      /api/admin/analytics
+  GET/POST /api/admin/staff
+  PATCH/DELETE /api/admin/staff/[id]
+  GET/POST /api/admin/roles
+  PATCH/DELETE /api/admin/roles/[id]
+  GET/PATCH /api/admin/settings
+  GET/POST /api/admin/notifications
+  POST     /api/admin/dashboard/stats
+
+PayHero integration:
+  POST https://backend.payhero.co.ke/api/v2/payments
+  Auth: Basic base64(API_USERNAME:API_SECRET)
+  Callback: idempotent, amount verification
+  On success: CallMeBot to Clare + Web Push
+
+Sanity write (products/gallery):
+  POST https://api.sanity.io/v1/data/mutate/production
+  Auth: Bearer SANITY_API_TOKEN (server only)
+  After write: POST /api/revalidate on customer site
+
+CallMeBot (fire-and-forget, never await):
+  New order, custom order, payment, mismatch
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+PRISMA CLIENT (standard, NOT edge)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+/lib/prisma/client.ts:
+
+import { PrismaClient } from '@prisma/client'
+
+const globalForPrisma = globalThis as 
+  unknown as { prisma: PrismaClient | undefined }
+
+export const prisma = globalForPrisma.prisma ?? 
+  new PrismaClient({ 
+    log: ['error'] 
+  })
+
+if (process.env.NODE_ENV !== 'production')
+  globalForPrisma.prisma = prisma
+
+DO NOT import from '@prisma/client/edge'
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+PACKAGE.JSON SCRIPTS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+{
+  "scripts": {
+    "dev": "next dev",
+    "build": "prisma generate && next build",
+    "start": "next start",
+    "postinstall": "prisma generate",
+    "db:push": "prisma db push",
+    "db:migrate": "prisma migrate deploy",
+    "db:seed": "ts-node prisma/seed.ts",
+    "db:studio": "prisma studio"
+  }
+}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+NEXT.CONFIG.JS (clean, Vercel-ready)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+/** @type {import('next').NextConfig} */
+const nextConfig = {
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'images.unsplash.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'cdn.sanity.io',
+      },
+      {
+        protocol: 'https',
+        hostname: '*.supabase.co',
+      },
+    ],
+  },
+  experimental: {
+    serverActions: {
+      allowedOrigins: ['localhost:3000'],
+    },
+  },
+}
+
+module.exports = nextConfig
+
+NO Cloudflare adapter.
+NO edge runtime config.
+NO wrangler.toml.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+VERCEL.JSON (project root)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+{
+  "buildCommand": "prisma generate && next build",
+  "installCommand": "npm install",
+  "framework": "nextjs"
+}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+SECURITY HEADERS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Add to next.config.js:
+  async headers() {
+    return [{
+      source: '/(.*)',
+      headers: [
+        { key: 'X-Frame-Options', value: 'DENY' },
+        { key: 'X-Content-Type-Options', 
+          value: 'nosniff' },
+        { key: 'Referrer-Policy', 
+          value: 'strict-origin-when-cross-origin' },
+      ],
+    }]
+  }
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ABSOLUTE RULES
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+1. REMOVE "Edit with Lovable" badge entirely
+   No Lovable branding anywhere
+2. Standard Node.js runtime on ALL routes
+   Zero edge runtime declarations
+3. Prisma standard client (NOT edge client)
+4. ZERO fake data — all from Sanity/DB
+5. ZERO fake stats, names, addresses
+6. Admin only via /account login
+   Admin role redirects to /admin
+7. Guest checkout always available
+8. SANITY_API_TOKEN server-side only
+9. CallMeBot never blocks any flow
+10. All destructive actions: confirm dialog
+11. Every form: loading state on submit
+12. Mobile responsive at 375px
+13. Dark mode no flash on reload
+14. npm run build passes zero TS errors
+15. Footer credit: IanOtollo at IOMTechs
+    (never Lovable)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+DEPLOYMENT CHECKLIST
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+After build passes locally:
+1. npx prisma db push (create tables)
+2. npx prisma db seed (create admin user)
+3. Push to GitHub: IanOtollo/busia-pastries
+4. Import repo in Vercel
+5. Add all env variables in Vercel dashboard
+6. Deploy
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ENVIRONMENT VARIABLES
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+[PASTE YOUR .ENV VARIABLES HERE]

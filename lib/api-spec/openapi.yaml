@@ -1,22 +1,24 @@
 openapi: 3.1.0
 info:
-  # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
-  description: API specification
+  description: Clare Pastries API
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
-    description: Health operations
+  - name: products
+  - name: custom-orders
+  - name: contact
+  - name: reviews
+  - name: gallery
 paths:
   /healthz:
     get:
       operationId: healthCheck
       tags: [health]
       summary: Health check
-      description: Returns server health status
       responses:
         "200":
           description: Healthy
@@ -24,13 +26,240 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
+  /products:
+    get:
+      operationId: listProducts
+      tags: [products]
+      summary: List all products
+      parameters:
+        - name: category
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [all, cakes, pastries, breads, seasonal]
+        - name: featured
+          in: query
+          required: false
+          schema:
+            type: boolean
+      responses:
+        "200":
+          description: Products list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Product"
+
+  /products/{id}:
+    get:
+      operationId: getProduct
+      tags: [products]
+      summary: Get a single product
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Product
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Product"
+
+  /custom-orders:
+    post:
+      operationId: createCustomOrder
+      tags: [custom-orders]
+      summary: Submit a custom order request
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CustomOrderInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CustomOrder"
+
+  /contact:
+    post:
+      operationId: submitContact
+      tags: [contact]
+      summary: Submit a contact message
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ContactInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ContactMessage"
+
+  /reviews:
+    get:
+      operationId: listReviews
+      tags: [reviews]
+      summary: List approved reviews
+      responses:
+        "200":
+          description: Reviews
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Review"
+
+  /gallery:
+    get:
+      operationId: listGallery
+      tags: [gallery]
+      summary: List gallery items
+      parameters:
+        - name: category
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Gallery items
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/GalleryItem"
+
+  /stats:
+    get:
+      operationId: getStats
+      tags: [health]
+      summary: Storefront stats summary (wow endpoint)
+      responses:
+        "200":
+          description: Stats
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Stats"
+
 components:
   schemas:
     HealthStatus:
       type: object
       properties:
-        status:
-          type: string
-      required:
-        - status
+        status: { type: string }
+      required: [status]
 
+    Product:
+      type: object
+      properties:
+        id: { type: string }
+        slug: { type: string }
+        name: { type: string }
+        description: { type: string }
+        priceKes: { type: number }
+        category: { type: string }
+        imageUrl: { type: string }
+        featured: { type: boolean }
+        inStock: { type: boolean }
+        servings: { type: string }
+      required: [id, slug, name, description, priceKes, category, imageUrl, featured, inStock]
+
+    CustomOrderInput:
+      type: object
+      properties:
+        fullName: { type: string }
+        phone: { type: string }
+        email: { type: string }
+        occasion: { type: string }
+        description: { type: string }
+        servings: { type: integer }
+        preferredDate: { type: string }
+        budget: { type: string }
+        fulfillment: { type: string, enum: [delivery, pickup] }
+      required: [fullName, phone, occasion, description, fulfillment]
+
+    CustomOrder:
+      type: object
+      properties:
+        id: { type: string }
+        fullName: { type: string }
+        phone: { type: string }
+        email: { type: string }
+        occasion: { type: string }
+        description: { type: string }
+        servings: { type: integer }
+        preferredDate: { type: string }
+        budget: { type: string }
+        fulfillment: { type: string }
+        createdAt: { type: string }
+      required: [id, fullName, phone, occasion, description, fulfillment, createdAt]
+
+    ContactInput:
+      type: object
+      properties:
+        name: { type: string }
+        email: { type: string }
+        phone: { type: string }
+        message: { type: string }
+      required: [name, message]
+
+    ContactMessage:
+      type: object
+      properties:
+        id: { type: string }
+        name: { type: string }
+        email: { type: string }
+        phone: { type: string }
+        message: { type: string }
+        createdAt: { type: string }
+      required: [id, name, message, createdAt]
+
+    Review:
+      type: object
+      properties:
+        id: { type: string }
+        author: { type: string }
+        rating: { type: integer }
+        body: { type: string }
+        location: { type: string }
+        createdAt: { type: string }
+      required: [id, author, rating, body, createdAt]
+
+    GalleryItem:
+      type: object
+      properties:
+        id: { type: string }
+        title: { type: string }
+        category: { type: string }
+        imageUrl: { type: string }
+        productId: { type: string }
+      required: [id, title, category, imageUrl]
+
+    Stats:
+      type: object
+      properties:
+        totalProducts: { type: integer }
+        featuredCount: { type: integer }
+        avgRating: { type: number }
+        deliveryMins: { type: string }
+        cityServed: { type: string }
+      required: [totalProducts, featuredCount, deliveryMins, cityServed]
