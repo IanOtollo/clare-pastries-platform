@@ -40,7 +40,7 @@ export default function AdminPOS() {
   const [confirmation, setConfirmation] = useState<string | null>(null);
 
   const items = (products ?? [])
-    .map((p as any) => ({ p, q: cart[Number(p.id)] ?? 0 }))
+    .map((p: any) => ({ p, q: cart[Number(p.id)] ?? 0 }))
     .filter(({ q }) => q > 0);
   const total = items.reduce((s, { p, q }) => s + p.priceKes * q, 0);
 
@@ -67,7 +67,7 @@ export default function AdminPOS() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2">
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
-            {(products ?? []).map((p as any) => {
+            {(products ?? []).map((p: any) => {
               const id = Number(p.id);
               const q = cart[id] ?? 0;
               return (

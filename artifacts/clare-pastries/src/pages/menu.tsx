@@ -52,7 +52,7 @@ export default function Menu() {
   const [searchQuery, setSearchQuery] = useState("");
 
   const { data: products, isLoading } = useListProducts({
-    category: activeCategory !== "All" ? activeCategory.toLowerCase() as any : undefined
+    category: activeCategory !== "All" ? activeCategory.toLowerCase() : undefined
   });
 
   const createOrder = ((data:any)=>console.log(data));

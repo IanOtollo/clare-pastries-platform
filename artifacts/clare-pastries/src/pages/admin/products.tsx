@@ -89,7 +89,7 @@ export default function AdminProducts() {
   });
 
   const openEdit = (p: Product) => {
-    setEditing(p as any);
+    setEditing(p);
     setForm({
       slug: p.slug,
       name: p.name,
@@ -140,7 +140,7 @@ export default function AdminProducts() {
                   <td colSpan={5} className="p-8 text-center text-muted-foreground">Loading…</td>
                 </tr>
               ) : (
-                (data ?? []).map((p as any) => (
+                (data ?? []).map((p: any) => (
                   <tr key={p.id} className="border-t border-border">
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-3">
@@ -159,7 +159,7 @@ export default function AdminProducts() {
                       {p.inStock && !p.featured && <Badge variant="secondary">In stock</Badge>}
                     </td>
                     <td className="px-4 py-3 flex gap-2">
-                      <Button size="icon" variant="ghost" onClick={() => openEdit(p as any)}>
+                      <Button size="icon" variant="ghost" onClick={() => openEdit(p)}>
                         <Pencil className="h-4 w-4" />
                       </Button>
                       <Button
