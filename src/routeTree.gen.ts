@@ -26,7 +26,6 @@ import { Route as ApiPublicPaymentStatusRouteImport } from './routes/api/public/
 import { Route as ApiPublicPayheroInitiateRouteImport } from './routes/api/public/payhero-initiate'
 import { Route as ApiPublicPayheroCallbackRouteImport } from './routes/api/public/payhero-callback'
 import { Route as ApiPublicNotifyOrderRouteImport } from './routes/api/public/notify-order'
-import { Route as ApiPublicBootstrapAdminRouteImport } from './routes/api/public/bootstrap-admin'
 
 const MenuRoute = MenuRouteImport.update({
   id: '/menu',
@@ -115,11 +114,6 @@ const ApiPublicNotifyOrderRoute = ApiPublicNotifyOrderRouteImport.update({
   path: '/api/public/notify-order',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ApiPublicBootstrapAdminRoute = ApiPublicBootstrapAdminRouteImport.update({
-  id: '/api/public/bootstrap-admin',
-  path: '/api/public/bootstrap-admin',
-  getParentRoute: () => rootRouteImport,
-} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -134,7 +128,6 @@ export interface FileRoutesByFullPath {
   '/menu': typeof MenuRouteWithChildren
   '/menu/$slug': typeof MenuSlugRoute
   '/orders/$id': typeof OrdersIdRoute
-  '/api/public/bootstrap-admin': typeof ApiPublicBootstrapAdminRoute
   '/api/public/notify-order': typeof ApiPublicNotifyOrderRoute
   '/api/public/payhero-callback': typeof ApiPublicPayheroCallbackRoute
   '/api/public/payhero-initiate': typeof ApiPublicPayheroInitiateRoute
@@ -154,7 +147,6 @@ export interface FileRoutesByTo {
   '/menu': typeof MenuRouteWithChildren
   '/menu/$slug': typeof MenuSlugRoute
   '/orders/$id': typeof OrdersIdRoute
-  '/api/public/bootstrap-admin': typeof ApiPublicBootstrapAdminRoute
   '/api/public/notify-order': typeof ApiPublicNotifyOrderRoute
   '/api/public/payhero-callback': typeof ApiPublicPayheroCallbackRoute
   '/api/public/payhero-initiate': typeof ApiPublicPayheroInitiateRoute
@@ -175,7 +167,6 @@ export interface FileRoutesById {
   '/menu': typeof MenuRouteWithChildren
   '/menu/$slug': typeof MenuSlugRoute
   '/orders/$id': typeof OrdersIdRoute
-  '/api/public/bootstrap-admin': typeof ApiPublicBootstrapAdminRoute
   '/api/public/notify-order': typeof ApiPublicNotifyOrderRoute
   '/api/public/payhero-callback': typeof ApiPublicPayheroCallbackRoute
   '/api/public/payhero-initiate': typeof ApiPublicPayheroInitiateRoute
@@ -197,7 +188,6 @@ export interface FileRouteTypes {
     | '/menu'
     | '/menu/$slug'
     | '/orders/$id'
-    | '/api/public/bootstrap-admin'
     | '/api/public/notify-order'
     | '/api/public/payhero-callback'
     | '/api/public/payhero-initiate'
@@ -217,7 +207,6 @@ export interface FileRouteTypes {
     | '/menu'
     | '/menu/$slug'
     | '/orders/$id'
-    | '/api/public/bootstrap-admin'
     | '/api/public/notify-order'
     | '/api/public/payhero-callback'
     | '/api/public/payhero-initiate'
@@ -237,7 +226,6 @@ export interface FileRouteTypes {
     | '/menu'
     | '/menu/$slug'
     | '/orders/$id'
-    | '/api/public/bootstrap-admin'
     | '/api/public/notify-order'
     | '/api/public/payhero-callback'
     | '/api/public/payhero-initiate'
@@ -257,7 +245,6 @@ export interface RootRouteChildren {
   LoginRoute: typeof LoginRoute
   MenuRoute: typeof MenuRouteWithChildren
   OrdersIdRoute: typeof OrdersIdRoute
-  ApiPublicBootstrapAdminRoute: typeof ApiPublicBootstrapAdminRoute
   ApiPublicNotifyOrderRoute: typeof ApiPublicNotifyOrderRoute
   ApiPublicPayheroCallbackRoute: typeof ApiPublicPayheroCallbackRoute
   ApiPublicPayheroInitiateRoute: typeof ApiPublicPayheroInitiateRoute
@@ -386,13 +373,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicNotifyOrderRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/public/bootstrap-admin': {
-      id: '/api/public/bootstrap-admin'
-      path: '/api/public/bootstrap-admin'
-      fullPath: '/api/public/bootstrap-admin'
-      preLoaderRoute: typeof ApiPublicBootstrapAdminRouteImport
-      parentRoute: typeof rootRouteImport
-    }
   }
 }
 
@@ -418,7 +398,6 @@ const rootRouteChildren: RootRouteChildren = {
   LoginRoute: LoginRoute,
   MenuRoute: MenuRouteWithChildren,
   OrdersIdRoute: OrdersIdRoute,
-  ApiPublicBootstrapAdminRoute: ApiPublicBootstrapAdminRoute,
   ApiPublicNotifyOrderRoute: ApiPublicNotifyOrderRoute,
   ApiPublicPayheroCallbackRoute: ApiPublicPayheroCallbackRoute,
   ApiPublicPayheroInitiateRoute: ApiPublicPayheroInitiateRoute,
