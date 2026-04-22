@@ -121,9 +121,9 @@ export function Navbar({ transparentTop = false }: { transparentTop?: boolean })
 
             <Link
               to="/account"
-              aria-label="Account"
+              aria-label="Account / Sign in"
               className={[
-                "hidden md:inline-flex items-center justify-center h-9 w-9 rounded-full transition-colors",
+                "inline-flex items-center justify-center h-9 w-9 rounded-full transition-colors",
                 showSolid ? "hover:bg-[var(--cp-surface-2)] text-[var(--cp-text)]" : "hover:bg-white/15 text-white",
               ].join(" ")}
             >
@@ -170,6 +170,7 @@ export function Navbar({ transparentTop = false }: { transparentTop?: boolean })
             <nav className="flex-1 overflow-y-auto px-5 py-8 space-y-1">
               {[
                 ...NAV,
+                { to: "/account", label: "Sign in / Account" },
                 { to: "/menu", label: "Track My Order" },
                 { to: "/menu#custom-order", label: "Custom Order" },
               ].map((n, i) => (
