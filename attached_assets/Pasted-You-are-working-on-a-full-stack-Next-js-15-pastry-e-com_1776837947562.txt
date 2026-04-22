@@ -1,0 +1,470 @@
+You are working on a full-stack Next.js 15 
+pastry e-commerce platform called 
+"Clare Pastries". 
+
+Your job is to:
+1. Fix all build errors so npm run build passes
+2. Configure for Vercel deployment (Node.js 20)
+3. Push everything to GitHub
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+STEP 1 — FIX NODE.JS VERSION
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Add to package.json:
+  "engines": { "node": ">=20.0.0" }
+
+Create .nvmrc in project root:
+  20
+
+Create vercel.json in project root:
+{
+  "buildCommand": "prisma generate && next build",
+  "installCommand": "npm install",
+  "framework": "nextjs"
+}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+STEP 2 — FIX NEXT.CONFIG.JS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Replace next.config.js/ts completely with:
+
+/** @type {import('next').NextConfig} */
+const nextConfig = {
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'images.unsplash.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'cdn.sanity.io',
+      },
+      {
+        protocol: 'https',
+        hostname: '*.supabase.co',
+      },
+    ],
+  },
+  async headers() {
+    return [
+      {
+        source: '/(.*)',
+        headers: [
+          { key: 'X-Frame-Options', value: 'DENY' },
+          { 
+            key: 'X-Content-Type-Options', 
+            value: 'nosniff' 
+          },
+          {
+            key: 'Referrer-Policy',
+            value: 'strict-origin-when-cross-origin'
+          },
+        ],
+      },
+    ]
+  },
+}
+
+module.exports = nextConfig
+
+NO Cloudflare adapter.
+NO edge runtime config.
+NO wrangler.toml.
+Remove wrangler.toml if it exists.
+Remove @cloudflare/next-on-pages if installed.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+STEP 3 — FIX ALL API ROUTES
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Search every single file in the project.
+Find and REMOVE these lines wherever they appear:
+
+  export const runtime = 'edge'
+  export const runtime = 'experimental-edge'
+  export const config = { runtime: 'edge' }
+  export const config = { runtime: 'experimental-edge' }
+
+These lines cause 404 on Vercel.
+Standard Node.js runtime is the default.
+Remove from ALL files including:
+  app/api/**/*.ts
+  app/**/page.tsx
+  app/**/layout.tsx
+  middleware.ts
+  Any other file
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+STEP 4 — FIX PRISMA CLIENT
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Find the Prisma client file (lib/prisma.ts or
+lib/prisma/client.ts or similar).
+
+Replace its entire content with:
+
+import { PrismaClient } from '@prisma/client'
+
+const globalForPrisma = globalThis as unknown as {
+  prisma: PrismaClient | undefined
+}
+
+export const prisma =
+  globalForPrisma.prisma ??
+  new PrismaClient({
+    log: ['error'],
+  })
+
+if (process.env.NODE_ENV !== 'production')
+  globalForPrisma.prisma = prisma
+
+CRITICAL: Import from '@prisma/client' ONLY.
+NEVER from '@prisma/client/edge' — that breaks
+Vercel standard functions.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+STEP 5 — FIX PACKAGE.JSON SCRIPTS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Ensure package.json scripts are exactly:
+
+"scripts": {
+  "dev": "next dev",
+  "build": "prisma generate && next build",
+  "start": "next start",
+  "postinstall": "prisma generate",
+  "db:push": "prisma db push",
+  "db:migrate": "prisma migrate deploy",
+  "db:seed": "npx ts-node --compiler-options '{\"module\":\"CommonJS\"}' prisma/seed.ts",
+  "lint": "next lint"
+}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+STEP 6 — CREATE ADMIN SEED
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Create prisma/seed.ts:
+
+import { PrismaClient } from '@prisma/client'
+import bcrypt from 'bcryptjs'
+
+const prisma = new PrismaClient()
+
+async function main() {
+  const existing = await prisma.user.findFirst({
+    where: { email: 'clare@admin.co' }
+  })
+
+  if (!existing) {
+    const passwordHash = await bcrypt.hash('123456', 12)
+    await prisma.user.create({
+      data: {
+        name: 'Clare',
+        email: 'clare@admin.co',
+        passwordHash,
+        role: 'ADMIN',
+      }
+    })
+    console.log('Admin user created: clare@admin.co')
+  } else {
+    console.log('Admin user already exists')
+  }
+}
+
+main()
+  .catch(console.error)
+  .finally(() => prisma.$disconnect())
+
+Add to package.json:
+"prisma": {
+  "seed": "npx ts-node --compiler-options '{\"module\":\"CommonJS\"}' prisma/seed.ts"
+}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+STEP 7 — REMOVE LOVABLE BADGE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Search entire codebase for:
+  lovable
+  lovable.dev
+  Edit with
+  utm_source=lovable-badge
+  436699f0-83c9-47ee-9158-29cbe4108f62
+
+Remove every instance found.
+This includes any badge component, 
+any link, any script tag, any comment.
+Zero Lovable branding anywhere in the output.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+STEP 8 — FIX ENVIRONMENT VARIABLES
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Create .env.example in project root
+documenting all required variables:
+
+# Database (Supabase)
+DATABASE_URL=
+DIRECT_URL=
+
+# Supabase
+NEXT_PUBLIC_SUPABASE_URL=
+NEXT_PUBLIC_SUPABASE_ANON_KEY=
+SUPABASE_SERVICE_ROLE_KEY=
+NEXT_PUBLIC_SUPABASE_STORAGE_URL=
+
+# Auth (NextAuth)
+NEXTAUTH_SECRET=
+NEXTAUTH_URL=https://clarepastries.vercel.app
+
+# Sanity CMS
+NEXT_PUBLIC_SANITY_PROJECT_ID=
+NEXT_PUBLIC_SANITY_DATASET=production
+SANITY_API_TOKEN=
+
+# PayHero (M-Pesa)
+PAYHERO_API_USERNAME=
+PAYHERO_API_SECRET=
+PAYHERO_CHANNEL_ID=
+# Paybill: 714888 | Account: 257457
+
+# Stripe (Card payments)
+NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=
+STRIPE_SECRET_KEY=
+STRIPE_WEBHOOK_SECRET=
+
+# CallMeBot (WhatsApp notifications)
+CALLMEBOT_PHONE=254724848228
+CALLMEBOT_API_KEY=
+
+# Web Push (Browser notifications)
+NEXT_PUBLIC_VAPID_PUBLIC_KEY=
+VAPID_PRIVATE_KEY=
+
+# Upstash Redis (Caching)
+UPSTASH_REDIS_REST_URL=
+UPSTASH_REDIS_REST_TOKEN=
+
+# Cross-site revalidation
+REVALIDATE_TOKEN=
+CUSTOMER_SITE_URL=https://clarepastries.vercel.app
+
+# App URL
+NEXT_PUBLIC_APP_URL=https://clarepastries.vercel.app
+
+Ensure .env is in .gitignore.
+Ensure .env.example is NOT in .gitignore.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+STEP 9 — FIX MIDDLEWARE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+middleware.ts must protect routes correctly:
+
+import { withAuth } from 'next-auth/middleware'
+import { NextResponse } from 'next/server'
+
+export default withAuth(
+  function middleware(req) {
+    const token = req.nextauth.token
+    const isAdminRoute = req.nextUrl.pathname
+      .startsWith('/admin')
+
+    if (isAdminRoute && token?.role !== 'ADMIN') {
+      return NextResponse.redirect(
+        new URL('/account', req.url)
+      )
+    }
+
+    return NextResponse.next()
+  },
+  {
+    callbacks: {
+      authorized: ({ token, req }) => {
+        const isAdminRoute = req.nextUrl.pathname
+          .startsWith('/admin')
+        if (isAdminRoute) return token?.role === 'ADMIN'
+        return true
+      },
+    },
+  }
+)
+
+export const config = {
+  matcher: ['/admin/:path*', '/account/:path*'],
+}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+STEP 10 — FIX ACCOUNT PAGE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+app/account/page.tsx must show:
+
+If NOT logged in:
+  Login/Register tabs
+  
+  LOGIN tab:
+    Email input
+    Password input (show/hide toggle)
+    "Sign In" button (loading state)
+    "Forgot password?" link
+    "Continue as Guest →" link → /menu
+    
+    On success:
+      If role === ADMIN → redirect /admin
+      If role === CUSTOMER → redirect /account/orders
+  
+  REGISTER tab:
+    Name input
+    Email input
+    Password input
+    "Create Account" button
+    "Guest checkout always available" note
+
+If logged in as CUSTOMER:
+  Tabs: Orders | Addresses | Settings
+  Orders: list from DB, click → /orders/[id]
+
+If logged in as ADMIN:
+  Immediate redirect to /admin
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+STEP 11 — VERIFY ALL PAGES EXIST
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Verify these page files exist and are
+fully implemented (no blank pages):
+
+Customer pages:
+  app/page.tsx (homepage)
+  app/menu/page.tsx
+  app/menu/[slug]/page.tsx
+  app/gallery/page.tsx
+  app/about/page.tsx
+  app/contact/page.tsx
+  app/cart/page.tsx
+  app/checkout/page.tsx
+  app/orders/[id]/page.tsx
+  app/account/page.tsx
+  app/account/orders/page.tsx
+  app/privacy-policy/page.tsx
+  app/terms/page.tsx
+
+Admin pages:
+  app/admin/page.tsx
+  app/admin/orders/page.tsx
+  app/admin/orders/[id]/page.tsx
+  app/admin/pos/page.tsx
+  app/admin/products/page.tsx
+  app/admin/products/new/page.tsx
+  app/admin/products/[id]/page.tsx
+  app/admin/gallery/page.tsx
+  app/admin/gallery/upload/page.tsx
+  app/admin/customers/page.tsx
+  app/admin/custom-orders/page.tsx
+  app/admin/custom-orders/[id]/page.tsx
+  app/admin/offers/page.tsx
+  app/admin/offers/new/page.tsx
+  app/admin/analytics/page.tsx
+  app/admin/staff/page.tsx
+  app/admin/staff/new/page.tsx
+  app/admin/staff/roles/page.tsx
+  app/admin/staff/roles/new/page.tsx
+  app/admin/staff/roles/[id]/page.tsx
+  app/admin/settings/page.tsx
+  app/admin/unauthorized/page.tsx
+
+API routes:
+  app/api/orders/route.ts
+  app/api/orders/[id]/route.ts
+  app/api/orders/[id]/payment-status/route.ts
+  app/api/checkout/payhero/route.ts
+  app/api/checkout/payhero/callback/route.ts
+  app/api/products/route.ts
+  app/api/products/[slug]/route.ts
+  app/api/gallery/route.ts
+  app/api/settings/route.ts
+  app/api/custom-orders/route.ts
+  app/api/consent/route.ts
+  app/api/currency/route.ts
+  app/api/revalidate/route.ts
+  app/api/push/subscribe/route.ts
+  app/api/auth/[...nextauth]/route.ts
+  app/api/admin/orders/route.ts
+  app/api/admin/orders/[id]/route.ts
+  app/api/admin/orders/[id]/status/route.ts
+  app/api/admin/orders/[id]/payment/route.ts
+  app/api/admin/products/route.ts
+  app/api/admin/products/[id]/route.ts
+  app/api/admin/upload-image/route.ts
+  app/api/admin/gallery/route.ts
+  app/api/admin/gallery/[id]/route.ts
+  app/api/admin/customers/route.ts
+  app/api/admin/custom-orders/[id]/route.ts
+  app/api/admin/offers/route.ts
+  app/api/admin/offers/[id]/route.ts
+  app/api/admin/analytics/route.ts
+  app/api/admin/staff/route.ts
+  app/api/admin/staff/[id]/route.ts
+  app/api/admin/roles/route.ts
+  app/api/admin/roles/[id]/route.ts
+  app/api/admin/settings/route.ts
+  app/api/admin/notifications/route.ts
+  app/api/admin/dashboard/stats/route.ts
+
+Create any missing page or route.
+Every page must render real content.
+Zero blank pages. Zero 404s on valid routes.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+STEP 12 — RUN BUILD
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Run:
+  npm install
+  npm run build
+
+Fix every single TypeScript error and
+build error until build passes with:
+  ✓ Compiled successfully
+
+Do not stop until build is clean.
+Every error must be resolved.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+STEP 13 — PUSH TO GITHUB
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+After build passes, run these shell commands:
+
+git add .
+git commit -m "fix: Vercel-ready build — Node 20, remove edge runtime, fix all errors"
+git push origin main --force
+
+Repository: https://github.com/IanOtollo/clare-pastries-platform
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ABSOLUTE RULES
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+1. Zero edge runtime declarations anywhere
+2. Prisma standard client only (not edge)
+3. Node.js 20 specified in package.json
+4. vercel.json in project root
+5. Zero Lovable branding anywhere
+6. npm run build must pass clean
+7. Zero TypeScript errors
+8. Zero blank pages
+9. Admin login: clare@admin.co / 123456
+10. Admin redirects to /admin after login
+11. Guest checkout always available
+12. Push to IanOtollo/clare-pastries-platform
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ENVIRONMENT VARIABLES
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+[PASTE YOUR .ENV VARIABLES HERE]
