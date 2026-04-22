@@ -19,6 +19,7 @@ import { ProductCard } from "@/components/ui/product-card";
 import { motion, AnimatePresence } from "framer-motion";
 import { Flame, Truck, Smartphone, Phone, ArrowRight, Star, Quote } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useListProducts } from "@workspace/api-client-react";
 import { Card, CardContent } from "@/components/ui/card";
 
 const HERO_IMAGES = [

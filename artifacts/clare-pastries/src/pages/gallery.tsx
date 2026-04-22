@@ -18,6 +18,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { motion, AnimatePresence } from "framer-motion";
 import { Camera, ExternalLink } from "lucide-react";
 import { Link } from "wouter";
+import { useListGallery } from "@workspace/api-client-react";
 
 export default function Gallery() {
   const [activeCategory, setActiveCategory] = useState("All");

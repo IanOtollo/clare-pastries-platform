@@ -28,6 +28,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
+import { useListProducts } from "@workspace/api-client-react";
 
 const categories = ["All", "Cakes", "Pastries", "Breads", "Seasonal"];
 const sorts = ["Featured", "Price Low→High", "Price High→Low"];
