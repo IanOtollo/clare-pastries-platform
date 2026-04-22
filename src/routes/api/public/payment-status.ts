@@ -28,7 +28,7 @@ export const Route = createFileRoute("/api/public/payment-status")({
 
         const { data, error } = await supabaseAdmin
           .from("orders")
-          .select("payment_status, status, payment_ref")
+          .select("payment_status, status")
           .eq("id", orderId)
           .single();
 
