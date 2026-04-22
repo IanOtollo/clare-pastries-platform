@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as MenuRouteImport } from './routes/menu'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as GalleryRouteImport } from './routes/gallery'
@@ -28,6 +29,11 @@ import { Route as ApiPublicPayheroInitiateRouteImport } from './routes/api/publi
 import { Route as ApiPublicPayheroCallbackRouteImport } from './routes/api/public/payhero-callback'
 import { Route as ApiPublicNotifyOrderRouteImport } from './routes/api/public/notify-order'
 
+const ResetPasswordRoute = ResetPasswordRouteImport.update({
+  id: '/reset-password',
+  path: '/reset-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const MenuRoute = MenuRouteImport.update({
   id: '/menu',
   path: '/menu',
@@ -133,6 +139,7 @@ export interface FileRoutesByFullPath {
   '/gallery': typeof GalleryRoute
   '/login': typeof LoginRoute
   '/menu': typeof MenuRouteWithChildren
+  '/reset-password': typeof ResetPasswordRoute
   '/menu/$slug': typeof MenuSlugRoute
   '/orders/$id': typeof OrdersIdRoute
   '/api/public/notify-order': typeof ApiPublicNotifyOrderRoute
@@ -153,6 +160,7 @@ export interface FileRoutesByTo {
   '/gallery': typeof GalleryRoute
   '/login': typeof LoginRoute
   '/menu': typeof MenuRouteWithChildren
+  '/reset-password': typeof ResetPasswordRoute
   '/menu/$slug': typeof MenuSlugRoute
   '/orders/$id': typeof OrdersIdRoute
   '/api/public/notify-order': typeof ApiPublicNotifyOrderRoute
@@ -174,6 +182,7 @@ export interface FileRoutesById {
   '/gallery': typeof GalleryRoute
   '/login': typeof LoginRoute
   '/menu': typeof MenuRouteWithChildren
+  '/reset-password': typeof ResetPasswordRoute
   '/menu/$slug': typeof MenuSlugRoute
   '/orders/$id': typeof OrdersIdRoute
   '/api/public/notify-order': typeof ApiPublicNotifyOrderRoute
@@ -196,6 +205,7 @@ export interface FileRouteTypes {
     | '/gallery'
     | '/login'
     | '/menu'
+    | '/reset-password'
     | '/menu/$slug'
     | '/orders/$id'
     | '/api/public/notify-order'
@@ -216,6 +226,7 @@ export interface FileRouteTypes {
     | '/gallery'
     | '/login'
     | '/menu'
+    | '/reset-password'
     | '/menu/$slug'
     | '/orders/$id'
     | '/api/public/notify-order'
@@ -236,6 +247,7 @@ export interface FileRouteTypes {
     | '/gallery'
     | '/login'
     | '/menu'
+    | '/reset-password'
     | '/menu/$slug'
     | '/orders/$id'
     | '/api/public/notify-order'
@@ -257,6 +269,7 @@ export interface RootRouteChildren {
   GalleryRoute: typeof GalleryRoute
   LoginRoute: typeof LoginRoute
   MenuRoute: typeof MenuRouteWithChildren
+  ResetPasswordRoute: typeof ResetPasswordRoute
   OrdersIdRoute: typeof OrdersIdRoute
   ApiPublicNotifyOrderRoute: typeof ApiPublicNotifyOrderRoute
   ApiPublicPayheroCallbackRoute: typeof ApiPublicPayheroCallbackRoute
@@ -268,6 +281,13 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/reset-password': {
+      id: '/reset-password'
+      path: '/reset-password'
+      fullPath: '/reset-password'
+      preLoaderRoute: typeof ResetPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/menu': {
       id: '/menu'
       path: '/menu'
@@ -418,6 +438,7 @@ const rootRouteChildren: RootRouteChildren = {
   GalleryRoute: GalleryRoute,
   LoginRoute: LoginRoute,
   MenuRoute: MenuRouteWithChildren,
+  ResetPasswordRoute: ResetPasswordRoute,
   OrdersIdRoute: OrdersIdRoute,
   ApiPublicNotifyOrderRoute: ApiPublicNotifyOrderRoute,
   ApiPublicPayheroCallbackRoute: ApiPublicPayheroCallbackRoute,

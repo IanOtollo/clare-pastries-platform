@@ -105,7 +105,7 @@ function LoginPage() {
                 <input
                   type={showPw ? "text" : "password"}
                   required
-                  minLength={5}
+                  minLength={mode === "signup" ? 6 : 5}
                   autoComplete={mode === "signup" ? "new-password" : "current-password"}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
@@ -122,6 +122,15 @@ function LoginPage() {
                 </button>
               </div>
             </Field>
+
+            {mode === "login" && (
+              <Link
+                to="/reset-password"
+                className="block text-right text-sm text-[var(--cp-text-muted)] hover:text-[var(--cp-accent)]"
+              >
+                Forgot password?
+              </Link>
+            )}
 
             {error && (
               <div className="text-sm text-red-400 bg-red-500/10 border border-red-500/30 rounded-lg px-3 py-2">
