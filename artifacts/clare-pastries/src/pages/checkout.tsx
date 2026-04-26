@@ -124,7 +124,7 @@ export default function CheckoutPage() {
     setError(null);
 
     try {
-      const trackingToken = Math.random().toString(36).substring(2, 15);
+      const trackingToken = crypto.randomUUID();
       
       const { data: order, error: orderError } = await supabase
         .from("Order")
@@ -179,6 +179,7 @@ export default function CheckoutPage() {
       setCurrentStep("CONFIRMED");
       clearCart();
     } catch (err: any) {
+      console.error("Order insertion failed:", err);
       setError(err.message || "Something went wrong.");
     } finally {
       setPlacing(false);
