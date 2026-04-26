@@ -1,62 +1,43 @@
 import { useQuery } from '@tanstack/react-query'
-import { sanityFetch } from '@/lib/sanity'
+import { supabase } from '@/lib/supabase'
 import { Product } from '@/types'
 
-const ALL_PRODUCTS_QUERY = `
-  *[_type == "product"] | order(available desc, publishedAt desc) {
-    _id,
-    "id": _id,
-    name,
-    slug,
-    category,
-    shortDescription,
-    priceKes,
-    available,
-    featured,
-    ingredients,
-    allergens,
-    servings,
-    preparationTime,
-    "images": images[]{
-      alt,
-      "url": asset->url
-    },
-    "imageUrl": images[0].asset->url,
-    "inStock": available
-  }
-`
-
-const FEATURED_PRODUCTS_QUERY = `
-  *[_type == "product" && featured == true
-    && available == true] | order(publishedAt desc) [0...6] {
-    _id,
-    "id": _id,
-    name,
-    slug,
-    category,
-    shortDescription,
-    priceKes,
-    available,
-    featured,
-    "images": images[]{
-      alt,
-      "url": asset->url
-    },
-    "imageUrl": images[0].asset->url,
-    "inStock": available
-  }
-`
+// Helper to map DB row to frontend Product type
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const mapProduct = (row: any): Product => ({
+  id: row.id,
+  _id: row.id,
+  name: row.name,
+  slug: { current: row.slug },
+  category: row.category as any,
+  shortDescription: row.short_description,
+  description: row.description ? [{ style: 'normal', children: [{ text: row.description }] }] : [],
+  priceKes: row.price_kes,
+  available: row.available,
+  featured: row.featured,
+  ingredients: row.ingredients || [],
+  allergens: row.allergens || [],
+  servings: undefined, // Add to schema if needed
+  preparationTime: undefined,
+  images: row.image_url ? [{ alt: row.name, url: row.image_url }] : [],
+  imageUrl: row.image_url,
+  inStock: row.available
+})
 
 export function useProducts(category?: string) {
   return useQuery({
     queryKey: ['products', category],
     queryFn: async () => {
-      const products = await sanityFetch<Product[]>(ALL_PRODUCTS_QUERY)
-      if (!products) return []
+      let query = supabase.from('products').select('*').order('created_at', { ascending: false })
+      
       if (category && category !== 'all' && category !== 'All') {
-        return products.filter((p) => p.category?.toLowerCase() === category.toLowerCase())
+        query = query.ilike('category', category)
       }
-      return products
+      
+      const { data, error } = await query
+      if (error) throw error
+      
+      return data.map(mapProduct)
     },
     staleTime: 60000,
   })
@@ -66,8 +47,15 @@ export function useFeaturedProducts() {
   return useQuery({
     queryKey: ['products', 'featured'],
     queryFn: async () => {
-      const products = await sanityFetch<Product[]>(FEATURED_PRODUCTS_QUERY)
-      return products || []
+      const { data, error } = await supabase
+        .from('products')
+        .select('*')
+        .eq('featured', true)
+        .eq('available', true)
+        .limit(6)
+      
+      if (error) throw error
+      return data.map(mapProduct)
     },
     staleTime: 120000,
   })
@@ -77,31 +65,14 @@ export function useProduct(slug: string) {
   return useQuery({
     queryKey: ['product', slug],
     queryFn: async () => {
-      const query = `
-        *[_type == "product" && slug.current == $slug][0] {
-          _id,
-          "id": _id,
-          name,
-          slug,
-          category,
-          description,
-          shortDescription,
-          priceKes,
-          available,
-          featured,
-          ingredients,
-          allergens,
-          servings,
-          preparationTime,
-          "images": images[]{
-            alt,
-            "url": asset->url
-          },
-          "imageUrl": images[0].asset->url,
-          "inStock": available
-        }
-      `
-      return await sanityFetch<Product>(query, { slug })
+      const { data, error } = await supabase
+        .from('products')
+        .select('*')
+        .eq('slug', slug)
+        .single()
+        
+      if (error) throw error
+      return mapProduct(data)
     },
     enabled: !!slug,
     staleTime: 300000,
@@ -114,18 +85,27 @@ export function useListProducts(
   _opts?: unknown
 ) {
   const category = params?.category
-  const query = useQuery({
+  
+  return useQuery({
     queryKey: ['products', 'list', params],
     queryFn: async () => {
-      const q = params?.featured ? FEATURED_PRODUCTS_QUERY : ALL_PRODUCTS_QUERY
-      const products = await sanityFetch<Product[]>(q)
-      if (!products) return []
-      if (category && category !== 'all' && category !== 'All') {
-        return products.filter((p) => p.category?.toLowerCase() === category.toLowerCase())
+      let query = supabase.from('products').select('*')
+      
+      if (params?.featured) {
+        query = query.eq('featured', true).eq('available', true).limit(6)
+      } else {
+        query = query.order('created_at', { ascending: false })
       }
-      return products
+      
+      if (category && category !== 'all' && category !== 'All') {
+        query = query.ilike('category', category)
+      }
+      
+      const { data, error } = await query
+      if (error) throw error
+      
+      return data.map(mapProduct)
     },
     staleTime: 60000,
   })
-  return query
 }

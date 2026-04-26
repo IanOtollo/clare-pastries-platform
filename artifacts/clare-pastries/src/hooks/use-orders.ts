@@ -100,7 +100,7 @@ export function useCreateOrder() {
 
       const orderItems = orderData.items.map((item) => ({
         orderId: order.id,
-        sanityId: item.product.id,
+        productId: item.product.id,
         productName: item.product.name,
         quantity: item.quantity,
         unitPriceKes: item.product.priceKes,

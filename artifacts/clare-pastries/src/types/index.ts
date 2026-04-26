@@ -72,7 +72,7 @@ export type OrderStatus =
 export interface OrderItem {
   id: string
   orderId: string
-  sanityId: string
+  productId: string
   productName: string
   quantity: number
   unitPriceKes: number
