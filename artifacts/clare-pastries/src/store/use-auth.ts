@@ -75,7 +75,7 @@ export const useAuth = create<AuthState>()(
         role: state.role,
       }),
     }
-  )
+  ) as any
 )
 
 // Legacy hook shims so existing components keep working
