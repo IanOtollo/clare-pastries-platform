@@ -239,16 +239,10 @@ export default function Cart() {
                       <span className="text-muted-foreground">Subtotal</span>
                       <span className="font-mono font-medium">{formatPrice(subtotal, currency, rate)}</span>
                     </div>
-                    {fulfillment === "DELIVERY" && (
-                      <div className="flex justify-between">
-                        <span className="text-muted-foreground">Delivery Fee</span>
-                        <span className="font-mono font-medium">{formatPrice(deliveryFee, currency, rate)}</span>
-                      </div>
-                    )}
                     <Separator className="my-4" />
                     <div className="flex justify-between items-center">
                       <span className="text-lg font-bold text-foreground">Total</span>
-                      <span className="text-xl font-mono font-bold text-primary">{formatPrice(total, currency, rate)}</span>
+                      <span className="text-xl font-mono font-bold text-primary">{formatPrice(subtotal, currency, rate)}</span>
                     </div>
                   </div>
                   <Button
