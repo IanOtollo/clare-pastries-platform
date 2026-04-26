@@ -16,9 +16,11 @@ import { formatPrice, useCurrencyStore, useExchangeRate } from "@/store/use-curr
 import { useCart } from "@/store/use-cart";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Plus, ShoppingBag } from "lucide-react";
-import { motion } from "framer-motion";
+import { Plus, ShoppingBag, Check } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 import { useToast } from "@/hooks/use-toast";
+import { useState } from "react";
+import { cn } from "@/lib/utils";
 
 interface ProductCardProps {
   product: Product;
@@ -30,9 +32,13 @@ export function ProductCard({ product, index = 0 }: ProductCardProps) {
   const { data: rate } = useExchangeRate();
   const addItem = useCart((state) => state.addItem);
   const { toast } = useToast();
+  const [isAdded, setIsAdded] = useState(false);
 
   const handleAdd = () => {
     addItem(product);
+    setIsAdded(true);
+    setTimeout(() => setIsAdded(false), 2000);
+    
     toast({
       title: "Added to cart",
       description: `${product.name} has been added to your bag.`,
@@ -89,14 +95,40 @@ export function ProductCard({ product, index = 0 }: ProductCardProps) {
               {product.category}
             </span>
             <Button
-              variant={product.inStock ? "default" : "secondary"}
+              variant={!product.inStock ? "secondary" : isAdded ? "default" : "default"}
               size="sm"
-              className="rounded-full rounded-tl-sm h-8 px-4"
+              className={cn(
+                "rounded-full rounded-tl-sm h-8 px-4 transition-all duration-300",
+                isAdded ? "bg-green-600 hover:bg-green-700" : ""
+              )}
               onClick={handleAdd}
-              disabled={!product.inStock}
+              disabled={!product.inStock || isAdded}
             >
-              <Plus className="h-4 w-4 mr-1" />
-              Add
+              <AnimatePresence mode="wait">
+                {isAdded ? (
+                  <motion.div
+                    key="added"
+                    initial={{ scale: 0.5, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    exit={{ scale: 0.5, opacity: 0 }}
+                    className="flex items-center"
+                  >
+                    <Check className="h-4 w-4 mr-1" />
+                    Added
+                  </motion.div>
+                ) : (
+                  <motion.div
+                    key="add"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    className="flex items-center"
+                  >
+                    <Plus className="h-4 w-4 mr-1" />
+                    Add
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </Button>
           </div>
         </CardContent>

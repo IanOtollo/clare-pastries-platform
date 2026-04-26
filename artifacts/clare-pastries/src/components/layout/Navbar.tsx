@@ -1,4 +1,5 @@
 import { Link, useLocation } from "wouter";
+import { motion, AnimatePresence } from "framer-motion";
 import { Wheat, ShoppingBag, UserCircle2, Menu as MenuIcon, X, Moon, Sun, Phone, MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger, SheetTitle, SheetDescription } from "@/components/ui/sheet";
@@ -164,11 +165,20 @@ export function Navbar() {
             <span className="cursor-pointer">
               <Button variant="ghost" size="icon" className="relative text-foreground hover:text-primary">
                 <ShoppingBag className="h-5 w-5" />
-                {itemCount > 0 && (
-                  <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-primary-foreground">
-                    {itemCount}
-                  </span>
-                )}
+                <AnimatePresence mode="popLayout">
+                  {itemCount > 0 && (
+                    <motion.span
+                      key="cart-badge"
+                      initial={{ scale: 0.5, opacity: 0 }}
+                      animate={{ scale: 1, opacity: 1 }}
+                      exit={{ scale: 0.5, opacity: 0 }}
+                      transition={{ type: "spring", stiffness: 500, damping: 15 }}
+                      className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-primary-foreground shadow-sm"
+                    >
+                      {itemCount}
+                    </motion.span>
+                  )}
+                </AnimatePresence>
                 <span className="sr-only">Cart</span>
               </Button>
             </span>
