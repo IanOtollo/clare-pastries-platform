@@ -29,7 +29,7 @@ const customOrderSchema = z.object({
   email: z.string().email().optional().or(z.literal("")),
   occasion: z.string().min(1, "Please select an occasion"),
   description: z.string().min(10, "Please describe what you'd like"),
-  servings: z.coerce.number().optional(),
+  servings: z.string().optional(),
   preferredDate: z.string().optional(),
   budget: z.string().optional(),
   fulfillment: z.enum(["delivery", "pickup"]),
@@ -120,7 +120,7 @@ export default function Menu() {
     const q = searchQuery.toLowerCase();
     displayedProducts = displayedProducts.filter(p => 
       p.name.toLowerCase().includes(q) || 
-      p.description.toLowerCase().includes(q)
+      (p.shortDescription && p.shortDescription.toLowerCase().includes(q))
     );
   }
 
@@ -385,18 +385,18 @@ export default function Menu() {
                           >
                             <FormItem className="flex">
                               <FormControl>
-                                <RadioGroupItem value="delivery" className="peer sr-only" />
+                                <RadioGroupItem value="delivery" id="delivery" className="peer sr-only" />
                               </FormControl>
-                              <Label className="flex flex-1 flex-col items-center justify-between rounded-xl border-2 border-muted bg-transparent p-4 hover:bg-muted/50 peer-data-[state=checked]:border-primary peer-data-[state=checked]:bg-primary/5 cursor-pointer">
+                              <Label htmlFor="delivery" className="flex flex-1 flex-col items-center justify-between rounded-xl border-2 border-muted bg-transparent p-4 hover:bg-muted/50 peer-data-[state=checked]:border-primary peer-data-[state=checked]:bg-primary/5 cursor-pointer">
                                 <span className="font-bold text-base mb-1">Delivery</span>
                                 <span className="text-sm text-muted-foreground font-normal">Within Busia Town</span>
                               </Label>
                             </FormItem>
                             <FormItem className="flex">
                               <FormControl>
-                                <RadioGroupItem value="pickup" className="peer sr-only" />
+                                <RadioGroupItem value="pickup" id="pickup" className="peer sr-only" />
                               </FormControl>
-                              <Label className="flex flex-1 flex-col items-center justify-between rounded-xl border-2 border-muted bg-transparent p-4 hover:bg-muted/50 peer-data-[state=checked]:border-primary peer-data-[state=checked]:bg-primary/5 cursor-pointer">
+                              <Label htmlFor="pickup" className="flex flex-1 flex-col items-center justify-between rounded-xl border-2 border-muted bg-transparent p-4 hover:bg-muted/50 peer-data-[state=checked]:border-primary peer-data-[state=checked]:bg-primary/5 cursor-pointer">
                                 <span className="font-bold text-base mb-1">Pickup</span>
                                 <span className="text-sm text-muted-foreground font-normal">At our kitchen</span>
                               </Label>
