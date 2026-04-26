@@ -9,10 +9,13 @@ import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 import { Minus, Plus, ArrowRight } from "lucide-react";
 
+import { useSettings } from "@/hooks/use-settings";
+
 export function Navbar() {
   const [location] = useLocation();
   const itemCount = useCart((state) => state.itemCount);
   const { currency, toggleCurrency } = useCurrencyStore();
+  const { data: settings } = useSettings();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isDark, setIsDark] = useState(false);
 
@@ -90,17 +93,17 @@ export function Navbar() {
                       Custom Order
                     </span>
                   </Link>
-                  <a href="tel:+254724848228" className="flex items-center gap-2 px-2 py-1 text-muted-foreground hover:text-primary transition-colors">
+                  <a href={`tel:${settings?.phone ?? '+254724848228'}`} className="flex items-center gap-2 px-2 py-1 text-muted-foreground hover:text-primary transition-colors">
                     <Phone className="h-4 w-4" />
-                    +254 724 848228
+                    {settings?.phone ?? '+254 724 848228'}
                   </a>
-                  <a href="https://wa.me/254724848228" target="_blank" rel="noreferrer" className="flex items-center gap-2 px-2 py-1 text-muted-foreground hover:text-primary transition-colors">
+                  <a href={`https://wa.me/${(settings?.phone ?? '254724848228').replace(/\D/g, '')}`} target="_blank" rel="noreferrer" className="flex items-center gap-2 px-2 py-1 text-muted-foreground hover:text-primary transition-colors">
                     <MessageCircle className="h-4 w-4" />
-                    WhatsApp Clare
+                    WhatsApp {settings?.businessName?.split(' ')[0] ?? 'Clare'}
                   </a>
                 </nav>
                 <div className="mt-auto pb-8">
-                  <p className="text-sm text-muted-foreground">Handcrafted in Busia Town</p>
+                  <p className="text-sm text-muted-foreground">Handcrafted in {settings?.location ?? 'Busia Town'}</p>
                 </div>
               </div>
             </SheetContent>
@@ -112,7 +115,7 @@ export function Navbar() {
                 <Wheat className="h-5 w-5 text-primary" strokeWidth={1.5} />
               </div>
               <span className="font-serif text-2xl font-bold tracking-tight text-foreground">
-                Clare Pastries
+                {settings?.businessName ?? 'Clare Pastries'}
               </span>
             </span>
           </Link>

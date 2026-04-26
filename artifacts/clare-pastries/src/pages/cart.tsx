@@ -43,12 +43,14 @@ import {
 } from "@/components/ui/dialog";
 import { supabase } from "@/lib/supabase";
 import { cn } from "@/lib/utils";
+import { useSettings } from "@/hooks/use-settings";
 
 export default function CartPage() {
   const { items, removeItem, updateQuantity, clearCart, subtotal, itemCount } = useCart();
   const { currency } = useCurrencyStore();
   const { data: rate } = useExchangeRate();
   const { user } = useAuth();
+  const { data: settings } = useSettings();
   const [, setLocation] = useLocation();
 
   const [open, setOpen] = useState(false);
@@ -65,7 +67,7 @@ export default function CartPage() {
   const [paymentMethod, setPaymentMethod] = useState<"MPESA" | "CASH" | "CARD">("MPESA");
   const [notes, setNotes] = useState("");
 
-  const deliveryFee = fulfillment === "DELIVERY" && subtotal > 0 ? 200 : 0;
+  const deliveryFee = fulfillment === "DELIVERY" && subtotal > 0 ? (settings?.deliveryFeeKes ?? 100) : 0;
   const total = subtotal + deliveryFee;
 
   const placeOrder = async () => {
@@ -378,7 +380,7 @@ export default function CartPage() {
                     <div className="pt-4 border-t border-[var(--cp-border)] border-dashed space-y-2">
                       <div className="flex items-center gap-2 text-[var(--cp-text-muted)]">
                         <Truck className="h-3.5 w-3.5 text-[var(--cp-accent)]" />
-                        <span className="text-[0.8rem]">Delivery: 45–90 minutes</span>
+                        <span className="text-[0.8rem]">Delivery: {settings?.deliveryEstimate ?? '45–90 minutes'}</span>
                       </div>
                       <div className="flex items-center gap-2 text-[var(--cp-text-muted)]">
                         <Store className="h-3.5 w-3.5 text-[var(--cp-accent)]" />

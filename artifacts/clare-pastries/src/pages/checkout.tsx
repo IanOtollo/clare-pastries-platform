@@ -43,10 +43,13 @@ const STEPS: { id: Step; label: string; icon: any }[] = [
   { id: "PAYMENT", label: "Payment", icon: CreditCard },
 ];
 
+import { useSettings } from "@/hooks/use-settings";
+
 export default function CheckoutPage() {
   const { items, clearCart, subtotal, itemCount } = useCart();
   const { currency } = useCurrencyStore();
   const { data: rate } = useExchangeRate();
+  const { data: settings } = useSettings();
   const { user } = useAuth();
   const [, setLocation] = useLocation();
 
@@ -87,7 +90,7 @@ export default function CheckoutPage() {
     }
   }, [items, currentStep, setLocation]);
 
-  const deliveryFee = formData.fulfillment === "DELIVERY" ? 200 : 0;
+  const deliveryFee = formData.fulfillment === "DELIVERY" ? (settings?.deliveryFeeKes ?? 100) : 0;
   const total = subtotal + deliveryFee;
 
   const nextStep = () => {
@@ -126,17 +129,21 @@ export default function CheckoutPage() {
       const { data: order, error: orderError } = await supabase
         .from("Order")
         .insert({
-          customerName: formData.name,
-          customerEmail: formData.email || null,
-          customerPhone: formData.phone,
-          deliveryAddress: formData.fulfillment === "DELIVERY" ? formData.address : null,
-          fulfillmentType: formData.fulfillment,
+          guestName: formData.name,
+          guestEmail: formData.email || null,
+          guestPhone: formData.phone,
+          deliveryStreet: formData.fulfillment === "DELIVERY" ? formData.address : null,
+          deliveryPhone: formData.phone,
+          fulfillment: formData.fulfillment,
           paymentMethod: formData.paymentMethod,
           subtotalKes: subtotal,
           deliveryFeeKes: deliveryFee,
           totalKes: total,
+          displayCurrency: currency,
+          displayTotal: total, // or conversion if needed
           notes: formData.notes || null,
           status: "PENDING",
+          paymentStatus: "UNPAID",
           trackingToken,
           userId: user?.id || null,
         })
@@ -148,6 +155,7 @@ export default function CheckoutPage() {
       const orderItems = items.map((it) => ({
         orderId: order.id,
         productId: it.product.id,
+        productName: it.product.name,
         quantity: it.quantity,
         unitPriceKes: it.product.priceKes,
         totalPriceKes: it.product.priceKes * it.quantity,
@@ -369,7 +377,7 @@ export default function CheckoutPage() {
                           {formData.fulfillment === "DELIVERY" && <CheckCircle2 className="h-6 w-6 text-primary" />}
                         </div>
                         <p className="font-bold text-[var(--cp-text)] text-lg">Doorstep Delivery</p>
-                        <p className="text-sm text-muted-foreground">Ksh 200 delivery fee applies.</p>
+                        <p className="text-sm text-muted-foreground">Ksh {settings?.deliveryFeeKes ?? 100} delivery fee applies.</p>
                       </button>
 
                       <button 
@@ -536,7 +544,7 @@ export default function CheckoutPage() {
                   </div>
                   <div className="flex items-center gap-3 text-xs text-muted-foreground">
                     <Clock className="h-4 w-4 text-primary" />
-                    <span>Delivery in 45–90 mins</span>
+                    <span>Delivery in {settings?.deliveryEstimate ?? '45–90 mins'}</span>
                   </div>
                 </div>
               </CardContent>

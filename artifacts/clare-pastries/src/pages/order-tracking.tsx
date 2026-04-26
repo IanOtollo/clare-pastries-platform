@@ -31,6 +31,8 @@ const STATUS_STEPS = [
   { id: "DELIVERED", label: "Delivered", icon: Home, desc: "Enjoy your delicious pastries!" },
 ];
 
+import { useSettings } from "@/hooks/use-settings";
+
 export default function OrderTracking() {
   const { id } = useParams();
   const [location] = useLocation();
@@ -38,6 +40,7 @@ export default function OrderTracking() {
   const token = searchParams.get('token');
   const { currency } = useCurrencyStore();
   const { data: rate } = useExchangeRate();
+  const { data: settings } = useSettings();
 
   const { data: order, isLoading, error } = useQuery({
     queryKey: ['order', id, token],
@@ -105,7 +108,7 @@ export default function OrderTracking() {
           <div className="flex flex-col items-end gap-1">
             <p className="text-sm text-muted-foreground uppercase tracking-widest font-bold">Estimated Arrival</p>
             <p className="text-2xl font-mono font-bold text-[var(--cp-accent)]">
-              {order.status === 'DELIVERED' ? 'Arrived' : '25–40 mins'}
+              {order.status === 'DELIVERED' ? 'Arrived' : (settings?.deliveryEstimate ?? '25–40 mins')}
             </p>
           </div>
         </div>
