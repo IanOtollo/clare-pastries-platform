@@ -10,18 +10,18 @@ interface CurrencyState {
   toggleCurrency: () => void
 }
 
-export const useCurrencyStore = create(
-  persist<CurrencyState>(
+export const useCurrencyStore = create<CurrencyState>()(
+  persist(
     (set) => ({
       currency: 'KES',
-      setCurrency: (currency) => set({ currency }),
+      setCurrency: (currency: Currency) => set({ currency }),
       toggleCurrency: () =>
-        set((state) => ({ currency: state.currency === 'KES' ? 'UGX' : 'KES' })),
+        set((state: CurrencyState) => ({ currency: state.currency === 'KES' ? 'UGX' : 'KES' })),
     }),
     {
       name: 'cp-currency',
     }
-  )
+  ) as any
 )
 
 export function useExchangeRate() {

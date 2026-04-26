@@ -1,3 +1,4 @@
+import { ShoppingCart, Sparkles, Users, Settings as SettingsIcon } from "lucide-react";
 import { AdminLayout } from "@/components/admin/AdminLayout";
 import { Card, CardContent } from "@/components/ui/card";
 import { Link } from "wouter";
@@ -38,23 +39,23 @@ export default function AdminDashboard() {
               </div>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
                 <Link href="/admin/orders">
-                  <a className="block p-3 rounded-lg border border-border hover:bg-muted/40 text-center font-medium">
-                    📦 Orders
+                  <a className="flex items-center justify-center gap-2 p-3 rounded-lg border border-border hover:bg-muted/40 text-center font-medium">
+                    <ShoppingCart className="w-4 h-4" /> Orders
                   </a>
                 </Link>
                 <Link href="/admin/custom-orders">
-                  <a className="block p-3 rounded-lg border border-border hover:bg-muted/40 text-center font-medium">
-                    🎂 Custom Orders
+                  <a className="flex items-center justify-center gap-2 p-3 rounded-lg border border-border hover:bg-muted/40 text-center font-medium">
+                    <Sparkles className="w-4 h-4" /> Custom Orders
                   </a>
                 </Link>
                 <Link href="/admin/customers">
-                  <a className="block p-3 rounded-lg border border-border hover:bg-muted/40 text-center font-medium">
-                    👥 Customers
+                  <a className="flex items-center justify-center gap-2 p-3 rounded-lg border border-border hover:bg-muted/40 text-center font-medium">
+                    <Users className="w-4 h-4" /> Customers
                   </a>
                 </Link>
                 <Link href="/admin/settings">
-                  <a className="block p-3 rounded-lg border border-border hover:bg-muted/40 text-center font-medium">
-                    ⚙️ Settings
+                  <a className="flex items-center justify-center gap-2 p-3 rounded-lg border border-border hover:bg-muted/40 text-center font-medium">
+                    <SettingsIcon className="w-4 h-4" /> Settings
                   </a>
                 </Link>
               </div>

@@ -17,7 +17,11 @@ import {
   Settings,
   LogOut,
   Wheat,
+  Menu,
 } from "lucide-react";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { Button } from "@/components/ui/button";
+import { useState } from "react";
 
 const navItems: { href: string; label: string; icon: typeof LayoutDashboard }[] = [
   { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
@@ -67,63 +71,95 @@ export function AdminLayout({ children }: { children: ReactNode }) {
     );
   }
 
+  const [open, setOpen] = useState(false);
+
+  const SidebarContent = () => (
+    <div className="h-full flex flex-col bg-background">
+      <div className="p-5 border-b border-border">
+        <Link href="/admin">
+          <a className="flex items-center gap-2" onClick={() => setOpen(false)}>
+            <div className="h-9 w-9 rounded-full bg-primary/15 flex items-center justify-center">
+              <Wheat className="h-5 w-5 text-primary" />
+            </div>
+            <div>
+              <div className="font-serif font-bold text-base leading-tight">
+                Clare Pastries
+              </div>
+              <div className="text-[10px] uppercase tracking-wider text-muted-foreground">
+                Admin
+              </div>
+            </div>
+          </a>
+        </Link>
+      </div>
+      <nav className="flex-1 overflow-y-auto py-3">
+        {navItems.map((item) => {
+          const Icon = item.icon;
+          const active =
+            item.href === "/admin"
+              ? location === "/admin"
+              : location.startsWith(item.href);
+          return (
+            <Link key={item.href} href={item.href}>
+              <a
+                onClick={() => setOpen(false)}
+                className={`flex items-center gap-3 px-5 py-2 text-sm transition-colors ${
+                  active
+                    ? "bg-primary/10 text-primary border-r-2 border-primary font-medium"
+                    : "text-foreground/70 hover:bg-muted hover:text-foreground"
+                }`}
+              >
+                <Icon className="h-4 w-4" />
+                {item.label}
+              </a>
+            </Link>
+          );
+        })}
+      </nav>
+      <div className="p-4 border-t border-border">
+        <div className="text-xs text-muted-foreground mb-2">{user.email}</div>
+        <button
+          onClick={() => {
+            logout.mutate(undefined, { onSuccess: () => navigate("/") });
+          }}
+          className="flex items-center gap-2 text-sm text-foreground/70 hover:text-foreground"
+        >
+          <LogOut className="h-4 w-4" /> Sign out
+        </button>
+      </div>
+    </div>
+  );
+
   return (
-    <div className="min-h-[100dvh] flex bg-muted/30">
-      <aside className="w-64 bg-background border-r border-border flex flex-col">
-        <div className="p-5 border-b border-border">
-          <Link href="/admin">
-            <a className="flex items-center gap-2">
-              <div className="h-9 w-9 rounded-full bg-primary/15 flex items-center justify-center">
-                <Wheat className="h-5 w-5 text-primary" />
-              </div>
-              <div>
-                <div className="font-serif font-bold text-base leading-tight">
-                  Clare Pastries
-                </div>
-                <div className="text-[10px] uppercase tracking-wider text-muted-foreground">
-                  Admin
-                </div>
-              </div>
-            </a>
-          </Link>
-        </div>
-        <nav className="flex-1 overflow-y-auto py-3">
-          {navItems.map((item) => {
-            const Icon = item.icon;
-            const active =
-              item.href === "/admin"
-                ? location === "/admin"
-                : location.startsWith(item.href);
-            return (
-              <Link key={item.href} href={item.href}>
-                <a
-                  className={`flex items-center gap-3 px-5 py-2 text-sm transition-colors ${
-                    active
-                      ? "bg-primary/10 text-primary border-r-2 border-primary font-medium"
-                      : "text-foreground/70 hover:bg-muted hover:text-foreground"
-                  }`}
-                >
-                  <Icon className="h-4 w-4" />
-                  {item.label}
-                </a>
-              </Link>
-            );
-          })}
-        </nav>
-        <div className="p-4 border-t border-border">
-          <div className="text-xs text-muted-foreground mb-2">{user.email}</div>
-          <button
-            onClick={() => {
-              logout.mutate(undefined, { onSuccess: () => navigate("/") });
-            }}
-            className="flex items-center gap-2 text-sm text-foreground/70 hover:text-foreground"
-          >
-            <LogOut className="h-4 w-4" /> Sign out
-          </button>
-        </div>
+    <div className="min-h-[100dvh] flex flex-col lg:flex-row bg-muted/30">
+      {/* Mobile Header */}
+      <header className="lg:hidden h-16 border-b border-border bg-background flex items-center justify-between px-4 sticky top-0 z-50">
+        <Link href="/admin">
+          <a className="flex items-center gap-2">
+            <Wheat className="h-6 w-6 text-primary" />
+            <span className="font-serif font-bold">Clare Admin</span>
+          </a>
+        </Link>
+        <Sheet open={open} onOpenChange={setOpen}>
+          <SheetTrigger asChild>
+            <Button variant="ghost" size="icon">
+              <Menu className="h-6 w-6" />
+            </Button>
+          </SheetTrigger>
+          <SheetContent side="left" className="p-0 w-72">
+            <SidebarContent />
+          </SheetContent>
+        </Sheet>
+      </header>
+
+      {/* Desktop Sidebar */}
+      <aside className="hidden lg:flex w-64 bg-background border-r border-border flex-col sticky top-0 h-screen">
+        <SidebarContent />
       </aside>
-      <main className="flex-1 min-w-0 overflow-x-auto">
-        <div className="px-8 py-6 max-w-7xl">{children}</div>
+
+      {/* Main Content */}
+      <main className="flex-1 min-w-0 overflow-x-hidden">
+        <div className="px-4 py-6 md:px-8 max-w-7xl mx-auto">{children}</div>
       </main>
     </div>
   );

@@ -99,7 +99,12 @@ export function useLogin() {
 export function useLogout() {
   const { logout } = useAuth()
   return {
-    mutate: () => logout(),
+    mutate: (
+      _input?: undefined,
+      opts?: { onSuccess?: () => void }
+    ) => {
+      logout().then(() => opts?.onSuccess?.())
+    },
     isPending: false,
   }
 }
