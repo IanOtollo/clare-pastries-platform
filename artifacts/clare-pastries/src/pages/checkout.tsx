@@ -66,18 +66,6 @@ export default function CheckoutPage() {
     notes: "",
   });
 
-  // Pre-fill from auth
-  useEffect(() => {
-    if (user) {
-      setFormData(prev => ({
-        ...prev,
-        name: user.user_metadata?.full_name || prev.name,
-        email: user.email || prev.email,
-        phone: user.user_metadata?.phone || prev.phone,
-      }));
-    }
-  }, [user]);
-
   // Redirect if cart is empty and not on confirmed step
   useEffect(() => {
     if (items.length === 0 && currentStep !== "CONFIRMED") {
