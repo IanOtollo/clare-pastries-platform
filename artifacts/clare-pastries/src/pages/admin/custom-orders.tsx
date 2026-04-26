@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { AdminLayout } from "@/components/admin/AdminLayout";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -18,53 +17,17 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { apiGet, apiSend } from "@/lib/api";
+import { useAdminCustomOrders, useUpdateCustomOrder } from "@/hooks/use-admin";
 
-type CustomOrder = {
-  id: number;
-  fullName: string;
-  phone: string;
-  email: string | null;
-  occasion: string;
-  description: string;
-  servings: number | null;
-  preferredDate: string | null;
-  budget: string | null;
-  fulfillment: string;
-  status: string;
-  adminNotes: string | null;
-  createdAt: string;
-};
-
-const STATUSES = [
-  "new",
-  "reviewing",
-  "quoted",
-  "approved",
-  "in_production",
-  "delivered",
-  "cancelled",
-];
+const STATUSES = ["NEW", "REVIEWING", "QUOTED", "APPROVED", "IN_PRODUCTION", "DELIVERED", "CANCELLED"];
 
 export default function AdminCustomOrders() {
-  const qc = useQueryClient();
-  const { data } = useQuery({
-    queryKey: ["admin", "custom-orders"],
-    queryFn: () => apiGet<CustomOrder[]>("/admin/custom-orders"),
-  });
-  const [openId, setOpenId] = useState<number | null>(null);
+  const { data } = useAdminCustomOrders();
+  const update = useUpdateCustomOrder();
+  const [openId, setOpenId] = useState<string | null>(null);
   const [notes, setNotes] = useState("");
 
-  const update = useMutation({
-    mutationFn: (vars: { id: number; status?: string; adminNotes?: string }) =>
-      apiSend(`/admin/custom-orders/${vars.id}`, "PATCH", {
-        status: vars.status,
-        adminNotes: vars.adminNotes,
-      }),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["admin", "custom-orders"] }),
-  });
-
-  const open = data?.find((o) => o.id === openId) ?? null;
+  const open = (data as Record<string, unknown>[] | undefined)?.find((o) => o.id === openId) ?? null;
 
   return (
     <AdminLayout>
@@ -85,29 +48,23 @@ export default function AdminCustomOrders() {
               </tr>
             </thead>
             <tbody>
-              {(data ?? []).map((o) => (
-                <tr key={o.id} className="border-t border-border">
+              {((data ?? []) as Record<string, unknown>[]).map((o) => (
+                <tr key={o.id as string} className="border-t border-border">
                   <td className="px-4 py-3">
-                    <div className="font-medium">{o.fullName}</div>
-                    <div className="text-xs text-muted-foreground">{o.phone}</div>
+                    <div className="font-medium">{o.fullName as string}</div>
+                    <div className="text-xs text-muted-foreground">{o.phone as string}</div>
                   </td>
-                  <td className="px-4 py-3 capitalize">{o.occasion}</td>
-                  <td className="px-4 py-3 text-xs">{o.preferredDate ?? "—"}</td>
-                  <td className="px-4 py-3">{o.budget ?? "—"}</td>
+                  <td className="px-4 py-3 capitalize">{o.occasion as string}</td>
+                  <td className="px-4 py-3 text-xs">{(o.preferredDate as string) ?? "—"}</td>
+                  <td className="px-4 py-3">{(o.budgetRange as string) ?? (o.budget as string) ?? "—"}</td>
                   <td className="px-4 py-3">
-                    <Badge variant="outline">{o.status.replace(/_/g, " ")}</Badge>
+                    <Badge variant="outline">{String(o.status).replace(/_/g, " ")}</Badge>
                   </td>
                   <td className="px-4 py-3">
                     <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => {
-                        setOpenId(o.id);
-                        setNotes(o.adminNotes ?? "");
-                      }}
-                    >
-                      View
-                    </Button>
+                      size="sm" variant="outline"
+                      onClick={() => { setOpenId(o.id as string); setNotes((o.adminNotes as string) ?? ""); }}
+                    >View</Button>
                   </td>
                 </tr>
               ))}
@@ -126,13 +83,13 @@ export default function AdminCustomOrders() {
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <div className="text-xs uppercase text-muted-foreground">Customer</div>
-                  <div>{open.fullName}</div>
-                  <div className="text-muted-foreground">{open.phone}</div>
-                  {open.email && <div className="text-muted-foreground">{open.email}</div>}
+                  <div>{open.fullName as string}</div>
+                  <div className="text-muted-foreground">{open.phone as string}</div>
+                  {open.email && <div className="text-muted-foreground">{open.email as string}</div>}
                 </div>
                 <div>
                   <div className="text-xs uppercase text-muted-foreground">Occasion</div>
-                  <div className="capitalize">{open.occasion}</div>
+                  <div className="capitalize">{open.occasion as string}</div>
                   <div className="text-muted-foreground">
                     {open.servings ? `Serves ${open.servings}` : ""}
                   </div>
@@ -140,37 +97,31 @@ export default function AdminCustomOrders() {
               </div>
               <div>
                 <div className="text-xs uppercase text-muted-foreground">Description</div>
-                <p className="whitespace-pre-wrap">{open.description}</p>
+                <p className="whitespace-pre-wrap">{open.description as string}</p>
               </div>
               <div className="grid grid-cols-3 gap-3 text-xs">
                 <div>
                   <div className="uppercase text-muted-foreground">Date</div>
-                  <div>{open.preferredDate ?? "—"}</div>
+                  <div>{(open.preferredDate as string) ?? "—"}</div>
                 </div>
                 <div>
                   <div className="uppercase text-muted-foreground">Budget</div>
-                  <div>{open.budget ?? "—"}</div>
+                  <div>{(open.budgetRange as string) ?? (open.budget as string) ?? "—"}</div>
                 </div>
                 <div>
                   <div className="uppercase text-muted-foreground">Fulfillment</div>
-                  <div className="capitalize">{open.fulfillment}</div>
+                  <div className="capitalize">{open.fulfillment as string}</div>
                 </div>
               </div>
               <div>
                 <label className="text-xs uppercase text-muted-foreground">Status</label>
                 <Select
-                  value={open.status}
-                  onValueChange={(v) => update.mutate({ id: open.id, status: v })}
+                  value={open.status as string}
+                  onValueChange={(v) => update.mutate({ id: open.id as string, status: v })}
                 >
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
-                    {STATUSES.map((s) => (
-                      <SelectItem key={s} value={s}>
-                        {s.replace(/_/g, " ")}
-                      </SelectItem>
-                    ))}
+                    {STATUSES.map((s) => <SelectItem key={s} value={s}>{s.replace(/_/g, " ")}</SelectItem>)}
                   </SelectContent>
                 </Select>
               </div>
@@ -178,13 +129,10 @@ export default function AdminCustomOrders() {
                 <label className="text-xs uppercase text-muted-foreground">Internal notes</label>
                 <Textarea value={notes} onChange={(e) => setNotes(e.target.value)} rows={3} />
                 <Button
-                  size="sm"
-                  className="mt-2"
-                  onClick={() => update.mutate({ id: open.id, adminNotes: notes })}
+                  size="sm" className="mt-2"
+                  onClick={() => update.mutate({ id: open.id as string, adminNotes: notes })}
                   disabled={update.isPending}
-                >
-                  Save notes
-                </Button>
+                >Save notes</Button>
               </div>
             </div>
           )}

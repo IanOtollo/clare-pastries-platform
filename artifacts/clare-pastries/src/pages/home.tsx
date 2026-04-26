@@ -1,15 +1,4 @@
-type Product = {
-  id: string;
-  slug: string;
-  name: string;
-  description?: string;
-  priceKes: number;
-  category?: string;
-  imageUrl?: string;
-  featured?: boolean;
-  inStock?: boolean;
-  servings?: string;
-};
+
 
 import { useState, useEffect } from "react";
 import { Layout } from "@/components/layout/Layout";
@@ -19,7 +8,7 @@ import { ProductCard } from "@/components/ui/product-card";
 import { motion, AnimatePresence } from "framer-motion";
 import { Flame, Truck, Smartphone, Phone, ArrowRight, Star, Quote } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useListProducts } from "@workspace/api-client-react";
+import { useFeaturedProducts } from "@/hooks/use-products";
 import { Card, CardContent } from "@/components/ui/card";
 
 const HERO_IMAGES = [
@@ -49,13 +38,10 @@ export default function Home() {
     return () => clearInterval(timer);
   }, []);
 
-  const { data: featuredProducts, isLoading: loadingFeatured } = useListProducts(
-    { featured: true },
-    { query: { queryKey: [] } }
-  );
+  const { data: featuredProducts, isLoading: loadingFeatured } = useFeaturedProducts();
 
-  const { data: gallery } = ({ data: [] });
-  const { data: reviews } = ({ data: [] });
+  const gallery: unknown[] = [];
+  const reviews: unknown[] = [];
 
   return (
     <Layout>

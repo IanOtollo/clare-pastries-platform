@@ -1,15 +1,4 @@
-type Product = {
-  id: string;
-  slug: string;
-  name: string;
-  description?: string;
-  priceKes: number;
-  category?: string;
-  imageUrl?: string;
-  featured?: boolean;
-  inStock?: boolean;
-  servings?: string;
-};
+
 
 import { useState } from "react";
 import { Layout } from "@/components/layout/Layout";
@@ -28,7 +17,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
-import { useListProducts } from "@workspace/api-client-react";
+import { useListProducts } from "@/hooks/use-products";
+import { supabase } from "@/lib/supabase";
 
 const categories = ["All", "Cakes", "Pastries", "Breads", "Seasonal"];
 const sorts = ["Featured", "Price Low→High", "Price High→Low"];
@@ -56,8 +46,41 @@ export default function Menu() {
     category: activeCategory !== "All" ? activeCategory.toLowerCase() : undefined
   });
 
-  const createOrder = ((data:any)=>console.log(data));
+  const [submitting, setSubmitting] = useState(false);
   const { toast } = useToast();
+
+  const createOrder = {
+    isPending: submitting,
+    mutate: async (data: CustomOrderFormValues, opts?: { onSuccess?: () => void; onError?: () => void }) => {
+      setSubmitting(true);
+      try {
+        const phone = import.meta.env.VITE_CALLMEBOT_PHONE;
+        const apikey = import.meta.env.VITE_CALLMEBOT_API_KEY;
+        const { error } = await supabase.from('CustomOrder').insert({
+          fullName: data.fullName,
+          phone: data.phone,
+          email: data.email || null,
+          occasion: data.occasion,
+          description: data.description,
+          flavors: null,
+          servings: data.servings || null,
+          preferredDate: data.preferredDate || null,
+          fulfillment: data.fulfillment,
+          deliveryArea: null,
+          budgetRange: data.budget || null,
+          notes: null,
+          status: 'NEW',
+        });
+        if (error) throw error;
+        if (phone && apikey) {
+          const msg = encodeURIComponent(`Custom Order!\nFrom: ${data.fullName} (${data.phone})\nOccasion: ${data.occasion}\nDetails: ${data.description}\nBudget: ${data.budget || 'Not specified'}`);
+          fetch(`https://api.callmebot.com/whatsapp.php?phone=${phone}&text=${msg}&apikey=${apikey}`).catch(() => {});
+        }
+        opts?.onSuccess?.();
+      } catch { opts?.onError?.(); }
+      finally { setSubmitting(false); }
+    }
+  };
 
   const form = useForm<CustomOrderFormValues>({
     resolver: zodResolver(customOrderSchema),
@@ -73,7 +96,7 @@ export default function Menu() {
   });
 
   const onSubmit = (data: CustomOrderFormValues) => {
-    createOrder.mutate({ data }, {
+    createOrder.mutate(data, {
       onSuccess: () => {
         toast({
           title: "Order Request Sent!",

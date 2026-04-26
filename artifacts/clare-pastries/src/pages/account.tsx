@@ -8,14 +8,14 @@ import { useState, useEffect } from "react";
 import { Package, MapPin, Settings, LogOut, Eye, EyeOff } from "lucide-react";
 import { Link, useLocation } from "wouter";
 import { useAuth, useLogin, useLogout, useRegister } from "@/store/use-auth";
-import { useQuery } from "@tanstack/react-query";
-import { apiGet } from "@/lib/api";
 import { useCurrencyStore, formatPrice, useExchangeRate } from "@/store/use-currency";
+import { supabase } from "@/lib/supabase";
+import { useQuery } from "@tanstack/react-query";
 
 type Order = {
-  id: number;
-  orderNumber: string;
-  totalKes: string;
+  id: string;
+  trackingToken: string;
+  totalKes: number;
   status: string;
   paymentStatus: string;
   fulfillment: string;
@@ -23,7 +23,7 @@ type Order = {
 };
 
 export default function Account() {
-  const { user, loading } = useAuth();
+  const { user, role, initialize } = useAuth();
   const [, navigate] = useLocation();
   const login = useLogin();
   const register = useRegister();
@@ -34,30 +34,32 @@ export default function Account() {
   const [regName, setRegName] = useState("");
   const [regEmail, setRegEmail] = useState("");
   const [regPwd, setRegPwd] = useState("");
-
-  useEffect(() => {
-    if (user?.role === "ADMIN" || user?.role === "STAFF") {
-      navigate("/admin");
-    }
-  }, [user, navigate]);
-
-  const ordersQuery = useQuery({
-    queryKey: ["my-orders"],
-    queryFn: () => apiGet<Order[]>("/orders/me"),
-    enabled: !!user && user.role === "CUSTOMER",
-  });
   const { currency } = useCurrencyStore();
   const { data: rate } = useExchangeRate();
 
-  if (loading) {
-    return (
-      <Layout>
-        <div className="flex-1 flex items-center justify-center py-32">
-          <p className="text-muted-foreground">Loading…</p>
-        </div>
-      </Layout>
-    );
-  }
+  useEffect(() => {
+    initialize();
+  }, []);
+
+  useEffect(() => {
+    if (user && (role === "ADMIN" || role === "STAFF")) {
+      navigate("/admin");
+    }
+  }, [user, role]);
+
+  const ordersQuery = useQuery({
+    queryKey: ["my-orders", user?.id],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("Order")
+        .select("*")
+        .eq("userId", user!.id)
+        .order("createdAt", { ascending: false });
+      if (error) throw error;
+      return data as Order[];
+    },
+    enabled: !!user && role === "CUSTOMER",
+  });
 
   if (!user) {
     return (
@@ -83,12 +85,13 @@ export default function Account() {
                       login.mutate(
                         { email: loginEmail, password: loginPwd },
                         {
-                          onSuccess: (data) => {
-                            if (data.user.role === "ADMIN" || data.user.role === "STAFF") {
+                          onSuccess: () => {
+                            const { role } = useAuth.getState();
+                            if (role === "ADMIN" || role === "STAFF") {
                               navigate("/admin");
                             }
                           },
-                        },
+                        }
                       );
                     }}
                     className="space-y-4"
@@ -140,7 +143,10 @@ export default function Account() {
                   <form
                     onSubmit={(e) => {
                       e.preventDefault();
-                      register.mutate({ name: regName, email: regEmail, password: regPwd });
+                      register.mutate(
+                        { name: regName, email: regEmail, password: regPwd },
+                        { onSuccess: () => navigate("/menu") }
+                      );
                     }}
                     className="space-y-4"
                   >
@@ -174,9 +180,6 @@ export default function Account() {
                         required
                       />
                     </div>
-                    {register.isError && (
-                      <p className="text-sm text-destructive">{(register.error as Error).message}</p>
-                    )}
                     <Button
                       type="submit"
                       className="w-full rounded-full mt-2"
@@ -260,7 +263,7 @@ export default function Account() {
                       {orders.map((o) => (
                         <div key={o.id} className="py-4 flex items-center justify-between">
                           <div>
-                            <p className="font-mono text-sm">{o.orderNumber}</p>
+                            <p className="font-mono text-sm">{o.trackingToken?.slice(0, 8).toUpperCase()}</p>
                             <p className="text-xs text-muted-foreground">
                               {new Date(o.createdAt).toLocaleString()} · {o.fulfillment}
                             </p>

@@ -1,15 +1,4 @@
-type Product = {
-  id: string;
-  slug: string;
-  name: string;
-  description?: string;
-  priceKes: number;
-  category?: string;
-  imageUrl?: string;
-  featured?: boolean;
-  inStock?: boolean;
-  servings?: string;
-};
+
 
 import { Layout } from "@/components/layout/Layout";
 import { useState } from "react";
@@ -18,7 +7,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { motion, AnimatePresence } from "framer-motion";
 import { Camera, ExternalLink } from "lucide-react";
 import { Link } from "wouter";
-import { useListGallery } from "@workspace/api-client-react";
+import { useListGallery } from "@/hooks/use-gallery";
 
 export default function Gallery() {
   const [activeCategory, setActiveCategory] = useState("All");
