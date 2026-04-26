@@ -11,7 +11,7 @@ const mapProduct = (row: any): Product => ({
   slug: { current: row.slug },
   category: row.category as any,
   shortDescription: row.short_description,
-  description: row.description ? [{ style: 'normal', children: [{ text: row.description }] }] : [],
+  description: row.description,
   priceKes: row.price_kes,
   available: row.available,
   featured: row.featured,

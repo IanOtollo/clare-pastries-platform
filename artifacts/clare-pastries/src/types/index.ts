@@ -5,7 +5,7 @@ export interface Product {
   slug: { current: string }
   category: 'cakes' | 'pastries' | 'breads' | 'seasonal'
   shortDescription?: string
-  description?: unknown[]
+  description?: string
   priceKes: number
   available: boolean
   featured: boolean
