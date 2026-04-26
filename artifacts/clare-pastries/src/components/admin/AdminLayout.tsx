@@ -36,7 +36,7 @@ const navItems: { href: string; label: string; icon: typeof LayoutDashboard }[] 
 ];
 
 export function AdminLayout({ children }: { children: ReactNode }) {
-  const { user, loading } = useAuth();
+  const { user, role, isLoading: loading } = useAuth();
   const logout = useLogout();
   const [location, navigate] = useLocation();
 
@@ -53,7 +53,7 @@ export function AdminLayout({ children }: { children: ReactNode }) {
     return null;
   }
 
-  if (user.role !== "ADMIN" && user.role !== "STAFF") {
+  if (role !== "ADMIN" && role !== "STAFF") {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-background p-6 text-center">
         <h1 className="text-3xl font-serif font-bold mb-2">Unauthorized</h1>
