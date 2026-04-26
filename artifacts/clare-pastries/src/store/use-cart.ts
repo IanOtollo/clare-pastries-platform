@@ -77,7 +77,7 @@ export const useCart = create<CartState>()(
     }),
     {
       name: 'cp-cart',
-      onRehydrateStorage: () => (state) => {
+      onRehydrateStorage: () => (state: any) => {
         if (state && !Array.isArray(state.items)) {
           state.items = [];
         }
