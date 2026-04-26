@@ -47,9 +47,10 @@ export default function Cart() {
   const { data: rate } = useExchangeRate();
   const { user } = useAuth();
   const [open, setOpen] = useState(false);
-  const [name, setName] = useState(user?.user_metadata?.name ?? "");
+  // Security: Don't pre-fill admin info into guest checkout forms
+  const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
-  const [email, setEmail] = useState(user?.email ?? "");
+  const [email, setEmail] = useState("");
   const [address, setAddress] = useState("");
   const [notes, setNotes] = useState("");
   const [fulfillment, setFulfillment] = useState<"DELIVERY" | "PICKUP">("DELIVERY");
@@ -105,8 +106,8 @@ export default function Cart() {
       if (itemsError) throw itemsError;
 
       // WhatsApp notification
-      const cbPhone = import.meta.env.VITE_CALLMEBOT_PHONE;
-      const cbKey = import.meta.env.VITE_CALLMEBOT_API_KEY;
+      const cbPhone = (import.meta as any).env.VITE_CALLMEBOT_PHONE;
+      const cbKey = (import.meta as any).env.VITE_CALLMEBOT_API_KEY;
       if (cbPhone && cbKey) {
         const itemsList = items.map((i) => `${i.quantity}x ${i.product.name}`).join(", ");
         const msg = encodeURIComponent(
@@ -230,15 +231,42 @@ export default function Cart() {
               <Card className="bg-muted/30 border border-border shadow-sm sticky top-24">
                 <CardContent className="p-6 md:p-8">
                   <h3 className="text-2xl font-serif font-bold mb-6">Order Summary</h3>
+                  
+                  <div className="mb-6 space-y-3">
+                    <Label className="text-xs uppercase tracking-wider text-muted-foreground">Fulfillment</Label>
+                    <div className="grid grid-cols-2 gap-2">
+                      <Button
+                        type="button"
+                        variant={fulfillment === "DELIVERY" ? "default" : "outline"}
+                        size="sm"
+                        className="rounded-full text-xs"
+                        onClick={() => setFulfillment("DELIVERY")}
+                      >
+                        Delivery
+                      </Button>
+                      <Button
+                        type="button"
+                        variant={fulfillment === "PICKUP" ? "default" : "outline"}
+                        size="sm"
+                        className="rounded-full text-xs"
+                        onClick={() => setFulfillment("PICKUP")}
+                      >
+                        Pickup
+                      </Button>
+                    </div>
+                  </div>
+
                   <div className="space-y-4 text-sm">
                     <div className="flex justify-between">
                       <span className="text-muted-foreground">Subtotal</span>
                       <span className="font-mono font-medium">{formatPrice(subtotal, currency, rate)}</span>
                     </div>
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">Delivery</span>
-                      <span className="font-mono font-medium">{formatPrice(deliveryFee, currency, rate)}</span>
-                    </div>
+                    {fulfillment === "DELIVERY" && (
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">Delivery Fee</span>
+                        <span className="font-mono font-medium">{formatPrice(deliveryFee, currency, rate)}</span>
+                      </div>
+                    )}
                     <Separator className="my-4" />
                     <div className="flex justify-between items-center">
                       <span className="text-lg font-bold text-foreground">Total</span>

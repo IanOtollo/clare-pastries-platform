@@ -29,56 +29,51 @@ export const useCart = create<CartState>()(
   persist(
     (set, get) => ({
       items: [],
-      addItem: (product, quantity = 1) => {
-        set((state) => {
+      itemCount: 0,
+      subtotal: 0,
+      addItem: (product: CartProduct, quantity: number = 1) => {
+        set((state: CartState) => {
           const items = Array.isArray(state.items) ? state.items : [];
           const existingItem = items.find(
             (item) => item.product.id === product.id
           );
-          if (existingItem) {
-            return {
-              items: items.map((item) =>
+          const newItems = existingItem
+            ? items.map((item) =>
                 item.product.id === product.id
                   ? { ...item, quantity: item.quantity + quantity }
                   : item
-              ),
-            };
-          }
-          return { items: [...items, { product, quantity }] };
+              )
+            : [...items, { product, quantity }];
+          
+          const itemCount = newItems.reduce((t, it) => t + it.quantity, 0);
+          const subtotal = newItems.reduce((t, it) => t + it.product.priceKes * it.quantity, 0);
+          
+          return { items: newItems, itemCount, subtotal };
         });
       },
-      removeItem: (productId) => {
-        set((state) => ({
-          items: Array.isArray(state.items)
+      removeItem: (productId: string) => {
+        set((state: CartState) => {
+          const newItems = Array.isArray(state.items)
             ? state.items.filter((item) => item.product.id !== productId)
-            : [],
-        }));
+            : [];
+          const itemCount = newItems.reduce((t, it) => t + it.quantity, 0);
+          const subtotal = newItems.reduce((t, it) => t + it.product.priceKes * it.quantity, 0);
+          return { items: newItems, itemCount, subtotal };
+        });
       },
-      updateQuantity: (productId, quantity) => {
-        set((state) => ({
-          items: Array.isArray(state.items)
+      updateQuantity: (productId: string, quantity: number) => {
+        set((state: CartState) => {
+          const newItems = Array.isArray(state.items)
             ? state.items.map((item) =>
                 item.product.id === productId ? { ...item, quantity } : item
               )
-            : [],
-        }));
+            : [];
+          const itemCount = newItems.reduce((t, it) => t + it.quantity, 0);
+          const subtotal = newItems.reduce((t, it) => t + it.product.priceKes * it.quantity, 0);
+          return { items: newItems, itemCount, subtotal };
+        });
       },
-      clearCart: () => set({ items: [] }),
-      get itemCount() {
-        const items = get().items;
-        return Array.isArray(items)
-          ? items.reduce((total, item) => total + item.quantity, 0)
-          : 0;
-      },
-      get subtotal() {
-        const items = get().items;
-        return Array.isArray(items)
-          ? items.reduce(
-              (total, item) => total + item.product.priceKes * item.quantity,
-              0
-            )
-          : 0;
-      },
+      clearCart: () => set({ items: [], itemCount: 0, subtotal: 0 }),
     }),
     {
       name: 'cp-cart',
@@ -88,5 +83,5 @@ export const useCart = create<CartState>()(
         }
       },
     }
-  )
+  ) as any
 );

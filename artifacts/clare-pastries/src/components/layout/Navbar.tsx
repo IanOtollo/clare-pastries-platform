@@ -162,18 +162,23 @@ export function Navbar() {
           </Link>
 
           <Link href="/cart">
-            <span className="cursor-pointer">
+            <motion.span 
+              className="cursor-pointer"
+              animate={itemCount > 0 ? { scale: [1, 1.1, 1] } : {}}
+              transition={{ duration: 0.3 }}
+              key={`bag-${itemCount}`}
+            >
               <Button variant="ghost" size="icon" className="relative text-foreground hover:text-primary">
                 <ShoppingBag className="h-5 w-5" />
                 <AnimatePresence mode="popLayout">
                   {itemCount > 0 && (
                     <motion.span
                       key="cart-badge"
-                      initial={{ scale: 0.5, opacity: 0 }}
+                      initial={{ scale: 0, opacity: 0 }}
                       animate={{ scale: 1, opacity: 1 }}
-                      exit={{ scale: 0.5, opacity: 0 }}
+                      exit={{ scale: 0, opacity: 0 }}
                       transition={{ type: "spring", stiffness: 500, damping: 15 }}
-                      className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-primary-foreground shadow-sm"
+                      className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-primary-foreground shadow-lg border border-background"
                     >
                       {itemCount}
                     </motion.span>
@@ -181,7 +186,7 @@ export function Navbar() {
                 </AnimatePresence>
                 <span className="sr-only">Cart</span>
               </Button>
-            </span>
+            </motion.span>
           </Link>
         </div>
       </div>
