@@ -10,8 +10,8 @@ interface CurrencyState {
   toggleCurrency: () => void
 }
 
-export const useCurrencyStore = create<CurrencyState>()(
-  persist(
+export const useCurrencyStore = create(
+  persist<CurrencyState>(
     (set) => ({
       currency: 'KES',
       setCurrency: (currency) => set({ currency }),
