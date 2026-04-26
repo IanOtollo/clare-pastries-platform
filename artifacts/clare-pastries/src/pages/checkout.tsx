@@ -133,7 +133,6 @@ export default function CheckoutPage() {
           guestEmail: formData.email || null,
           guestPhone: formData.phone,
           deliveryStreet: formData.fulfillment === "DELIVERY" ? formData.address : null,
-          deliveryPhone: formData.phone,
           fulfillment: formData.fulfillment,
           paymentMethod: formData.paymentMethod,
           subtotalKes: subtotal,
