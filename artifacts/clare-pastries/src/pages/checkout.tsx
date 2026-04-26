@@ -61,7 +61,7 @@ export default function CheckoutPage() {
     email: "",
     phone: "",
     address: "",
-    fulfillment: "DELIVERY" as "DELIVERY" | "PICKUP",
+    fulfillment: "PICKUP" as "DELIVERY" | "PICKUP",
     paymentMethod: "MPESA" as "MPESA" | "CASH" | "CARD",
     notes: "",
   });
