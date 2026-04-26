@@ -33,11 +33,16 @@ export function ProductCard({ product, index = 0 }: ProductCardProps) {
   const addItem = useCart((state) => state.addItem);
   const { toast } = useToast();
   const [isAdded, setIsAdded] = useState(false);
+  const [showAndTell, setShowAndTell] = useState(false);
 
   const handleAdd = () => {
     addItem(product);
     setIsAdded(true);
-    setTimeout(() => setIsAdded(false), 2000);
+    setShowAndTell(true);
+    setTimeout(() => {
+      setIsAdded(false);
+      setShowAndTell(false);
+    }, 2000);
     
     toast({
       title: "Added to cart",
@@ -132,6 +137,29 @@ export function ProductCard({ product, index = 0 }: ProductCardProps) {
             </Button>
           </div>
         </CardContent>
+        <AnimatePresence>
+          {showAndTell && (
+            <motion.div
+              initial={{ scale: 0.5, x: 0, y: 0, opacity: 1 }}
+              animate={{ 
+                scale: 0.2, 
+                x: typeof window !== 'undefined' ? window.innerWidth * 0.4 : 500, 
+                y: typeof window !== 'undefined' ? -window.innerHeight * 0.8 : -800,
+                opacity: 0 
+              }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.8, ease: "easeInOut" }}
+              className="fixed pointer-events-none z-[100] h-32 w-32 rounded-2xl overflow-hidden shadow-2xl border-4 border-primary"
+              style={{ 
+                left: '50%',
+                top: '50%',
+                transform: 'translate(-50%, -50%)'
+              }}
+            >
+              <img src={product.imageUrl} alt="" className="w-full h-full object-cover" />
+            </motion.div>
+          )}
+        </AnimatePresence>
       </Card>
     </motion.div>
   );

@@ -23,9 +23,11 @@ import {
   ArrowRight,
   Phone,
   CheckCircle2,
+  Loader2,
 } from "lucide-react";
 import { Link } from "wouter";
 import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   Dialog,
   DialogContent,
@@ -232,30 +234,6 @@ export default function Cart() {
                 <CardContent className="p-6 md:p-8">
                   <h3 className="text-2xl font-serif font-bold mb-6">Order Summary</h3>
                   
-                  <div className="mb-6 space-y-3">
-                    <Label className="text-xs uppercase tracking-wider text-muted-foreground">Fulfillment</Label>
-                    <div className="grid grid-cols-2 gap-2">
-                      <Button
-                        type="button"
-                        variant={fulfillment === "DELIVERY" ? "default" : "outline"}
-                        size="sm"
-                        className="rounded-full text-xs"
-                        onClick={() => setFulfillment("DELIVERY")}
-                      >
-                        Delivery
-                      </Button>
-                      <Button
-                        type="button"
-                        variant={fulfillment === "PICKUP" ? "default" : "outline"}
-                        size="sm"
-                        className="rounded-full text-xs"
-                        onClick={() => setFulfillment("PICKUP")}
-                      >
-                        Pickup
-                      </Button>
-                    </div>
-                  </div>
-
                   <div className="space-y-4 text-sm">
                     <div className="flex justify-between">
                       <span className="text-muted-foreground">Subtotal</span>
@@ -298,68 +276,83 @@ export default function Cart() {
 
           <form
             onSubmit={(e) => { e.preventDefault(); placeOrder(); }}
-            className="space-y-3"
+            className="space-y-4"
           >
             <div className="grid grid-cols-2 gap-3">
-              <div>
+              <div className="space-y-2">
                 <Label htmlFor="co-name">Full Name</Label>
-                <Input id="co-name" value={name} onChange={(e) => setName(e.target.value)} required />
+                <Input id="co-name" value={name} onChange={(e) => setName(e.target.value)} placeholder="Your name" className="rounded-xl" required />
               </div>
-              <div>
-                <Label htmlFor="co-phone">Phone</Label>
-                <Input id="co-phone" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+254..." required />
+              <div className="space-y-2">
+                <Label htmlFor="co-phone">Phone Number</Label>
+                <Input id="co-phone" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+254..." className="rounded-xl" required />
               </div>
             </div>
-            <div>
+            
+            <div className="space-y-2">
               <Label htmlFor="co-email">Email (optional)</Label>
-              <Input id="co-email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
+              <Input id="co-email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Email address" className="rounded-xl" />
             </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="co-notes">Order Notes (optional)</Label>
+              <Textarea id="co-notes" value={notes} onChange={(e) => setNotes(e.target.value)} rows={2} placeholder="Special instructions or preferences..." className="rounded-xl" />
+            </div>
+
             <div className="grid grid-cols-2 gap-3">
-              <div>
+              <div className="space-y-2">
                 <Label>Fulfillment</Label>
                 <Select value={fulfillment} onValueChange={(v) => setFulfillment(v as "DELIVERY" | "PICKUP")}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectTrigger className="rounded-xl"><SelectValue /></SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="DELIVERY">Delivery</SelectItem>
-                    <SelectItem value="PICKUP">Pickup</SelectItem>
+                    <SelectItem value="DELIVERY">Delivery (+Ksh 200)</SelectItem>
+                    <SelectItem value="PICKUP">Pickup (Free)</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
-              <div>
-                <Label>Payment</Label>
+              <div className="space-y-2">
+                <Label>Payment Method</Label>
                 <Select value={paymentMethod} onValueChange={(v) => setPaymentMethod(v as "MPESA" | "CASH" | "CARD")}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectTrigger className="rounded-xl"><SelectValue /></SelectTrigger>
                   <SelectContent>
                     <SelectItem value="MPESA">M-Pesa</SelectItem>
-                    <SelectItem value="CASH">Cash on delivery</SelectItem>
+                    <SelectItem value="CASH">Cash</SelectItem>
                     <SelectItem value="CARD">Card</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
             </div>
-            {fulfillment === "DELIVERY" && (
-              <div>
-                <Label htmlFor="co-addr">Delivery Address</Label>
-                <Input id="co-addr" value={address} onChange={(e) => setAddress(e.target.value)} placeholder="Estate, street, landmark" required />
+
+            <AnimatePresence>
+              {fulfillment === "DELIVERY" && (
+                <motion.div
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: "auto", opacity: 1 }}
+                  exit={{ height: 0, opacity: 0 }}
+                  className="space-y-2 overflow-hidden"
+                >
+                  <Label htmlFor="co-addr">Delivery Address</Label>
+                  <Input id="co-addr" value={address} onChange={(e) => setAddress(e.target.value)} placeholder="Estate, street, landmark" className="rounded-xl" required />
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            <div className="bg-muted/50 p-4 rounded-2xl border border-border mt-2">
+              <div className="flex justify-between items-center">
+                <span className="text-sm font-medium text-muted-foreground">Total to Pay</span>
+                <span className="text-xl font-mono font-bold text-primary">
+                  {formatPrice(total, currency, rate)}
+                </span>
               </div>
-            )}
-            <div>
-              <Label htmlFor="co-notes">Notes (optional)</Label>
-              <Textarea id="co-notes" value={notes} onChange={(e) => setNotes(e.target.value)} rows={2} />
             </div>
 
-            <div className="bg-muted/50 p-4 rounded-lg flex items-center justify-between border border-border">
-              <span className="text-sm text-muted-foreground">Total</span>
-              <span className="text-xl font-mono font-bold text-primary">{formatPrice(total, currency, rate)}</span>
-            </div>
-
-            {placeError && <p className="text-sm text-destructive">{placeError}</p>}
+            {placeError && <p className="text-sm text-destructive font-medium">{placeError}</p>}
 
             <div className="flex flex-col gap-2 pt-2">
-              <Button type="submit" disabled={placing} className="w-full rounded-full h-12">
-                {placing ? "Placing order…" : "Place Order"}
+              <Button type="submit" disabled={placing} className="w-full rounded-full h-12 font-bold shadow-lg shadow-primary/20">
+                {placing ? <Loader2 className="h-5 w-5 animate-spin mr-2" /> : "Place Order"}
               </Button>
-              <Button type="button" variant="outline" onClick={() => setOpen(false)} className="w-full rounded-full h-12">
+              <Button type="button" variant="ghost" onClick={() => setOpen(false)} className="w-full rounded-full h-10">
                 Cancel
               </Button>
             </div>
