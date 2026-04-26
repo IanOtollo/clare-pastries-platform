@@ -24,7 +24,7 @@ export const useAuth = create<AuthState>()(
       isLoading: false,
       error: null,
 
-      login: async (email, password) => {
+      login: async (email: string, password: string) => {
         set({ isLoading: true, error: null })
         try {
           const data = await signIn(email, password)
@@ -70,7 +70,7 @@ export const useAuth = create<AuthState>()(
     }),
     {
       name: 'cp-auth',
-      partialize: (state) => ({
+      partialize: (state: AuthState) => ({
         user: state.user,
         role: state.role,
       }),
