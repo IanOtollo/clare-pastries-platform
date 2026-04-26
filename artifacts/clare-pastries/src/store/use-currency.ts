@@ -29,8 +29,7 @@ export function useExchangeRate() {
     queryKey: ['exchange-rate'],
     queryFn: async () => {
       try {
-        // Fixed: use api.frankfurter.app (not .dev)
-        const res = await fetch('https://api.frankfurter.app/latest?base=KES&symbols=UGX')
+        const res = await fetch('https://open.er-api.com/v6/latest/KES')
         if (!res.ok) throw new Error('Failed to fetch rate')
         const data = await res.json()
         return (data.rates?.UGX as number) || 30
