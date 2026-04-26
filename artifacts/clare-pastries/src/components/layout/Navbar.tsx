@@ -4,9 +4,10 @@ import { Wheat, ShoppingBag, UserCircle2, Menu as MenuIcon, X, Moon, Sun, Phone,
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger, SheetTitle, SheetDescription } from "@/components/ui/sheet";
 import { useCart } from "@/store/use-cart";
-import { useCurrencyStore } from "@/store/use-currency";
+import { useCurrencyStore, formatPrice, useExchangeRate } from "@/store/use-currency";
 import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
+import { Minus, Plus, ArrowRight } from "lucide-react";
 
 export function Navbar() {
   const [location] = useLocation();
@@ -161,35 +162,160 @@ export function Navbar() {
             </span>
           </Link>
 
-          <Link href="/cart">
-            <motion.span 
-              className="cursor-pointer"
-              animate={itemCount > 0 ? { scale: [1, 1.1, 1] } : {}}
-              transition={{ duration: 0.3 }}
-              key={`bag-${itemCount}`}
-            >
-              <Button variant="ghost" size="icon" className="relative text-foreground hover:text-primary">
-                <ShoppingBag className="h-5 w-5" />
-                <AnimatePresence mode="popLayout">
-                  {itemCount > 0 && (
-                    <motion.span
-                      key="cart-badge"
-                      initial={{ scale: 0, opacity: 0 }}
-                      animate={{ scale: 1, opacity: 1 }}
-                      exit={{ scale: 0, opacity: 0 }}
-                      transition={{ type: "spring", stiffness: 500, damping: 15 }}
-                      className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-primary-foreground shadow-lg border border-background"
-                    >
-                      {itemCount}
-                    </motion.span>
-                  )}
-                </AnimatePresence>
-                <span className="sr-only">Cart</span>
-              </Button>
-            </motion.span>
-          </Link>
+          <Sheet>
+            <SheetTrigger asChild>
+              <motion.div 
+                className="cursor-pointer"
+                animate={itemCount > 0 ? { scale: [1, 1.1, 1] } : {}}
+                transition={{ duration: 0.3 }}
+                key={`bag-${itemCount}`}
+              >
+                <Button variant="ghost" size="icon" className="relative text-foreground hover:text-primary">
+                  <ShoppingBag className="h-5 w-5" />
+                  <AnimatePresence mode="popLayout">
+                    {itemCount > 0 && (
+                      <motion.span
+                        key="cart-badge"
+                        initial={{ scale: 0, opacity: 0 }}
+                        animate={{ scale: 1, opacity: 1 }}
+                        exit={{ scale: 0, opacity: 0 }}
+                        transition={{ type: "spring", stiffness: 500, damping: 15 }}
+                        className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-primary-foreground shadow-lg border border-background"
+                      >
+                        {itemCount}
+                      </motion.span>
+                    )}
+                  </AnimatePresence>
+                  <span className="sr-only">Cart</span>
+                </Button>
+              </motion.div>
+            </SheetTrigger>
+            <SheetContent className="w-full sm:max-w-md p-0 flex flex-col border-l border-[var(--cp-border)] bg-[var(--cp-surface)]">
+              <div className="p-6 border-b border-[var(--cp-border)]">
+                <SheetTitle className="font-serif text-2xl font-bold flex items-center gap-2">
+                  <ShoppingBag className="h-6 w-6 text-primary" />
+                  Your Bag
+                </SheetTitle>
+                <SheetDescription className="text-sm text-muted-foreground mt-1">
+                  You have {itemCount} {itemCount === 1 ? 'item' : 'items'} in your bag.
+                </SheetDescription>
+              </div>
+
+              <div className="flex-1 overflow-y-auto p-6">
+                <MiniCartContent />
+              </div>
+
+              <div className="p-6 border-t border-[var(--cp-border)] bg-[var(--cp-surface-2)]/30 space-y-4">
+                <MiniCartFooter />
+              </div>
+            </SheetContent>
+          </Sheet>
         </div>
       </div>
     </header>
   );
 }
+
+function MiniCartContent() {
+  const { items, removeItem, updateQuantity } = useCart();
+  const { currency } = useCurrencyStore();
+  const { data: rate } = useExchangeRate();
+
+  if (items.length === 0) {
+    return (
+      <div className="h-full flex flex-col items-center justify-center text-center py-12">
+        <div className="p-6 rounded-full bg-muted/50 mb-4">
+          <ShoppingBag className="h-12 w-12 text-muted-foreground/30" />
+        </div>
+        <p className="text-lg font-serif font-bold text-foreground">Bag is empty</p>
+        <p className="text-sm text-muted-foreground mt-1">Add some delicious pastries to get started!</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-6">
+      {items.map((item) => (
+        <div key={item.product.id} className="flex gap-4">
+          <div className="h-20 w-20 rounded-xl overflow-hidden border border-[var(--cp-border)] bg-[var(--cp-surface-2)] shrink-0">
+            <img src={item.product.imageUrl} alt={item.product.name} className="h-full w-full object-cover" />
+          </div>
+          <div className="flex-1 flex flex-col min-w-0">
+            <div className="flex justify-between items-start gap-2">
+              <h4 className="text-sm font-bold truncate leading-tight">{item.product.name}</h4>
+              <p className="text-sm font-mono font-bold text-primary">
+                {formatPrice(item.product.priceKes * item.quantity, currency, rate)}
+              </p>
+            </div>
+            <p className="text-[0.65rem] text-muted-foreground uppercase tracking-widest mt-0.5">{item.product.category}</p>
+            
+            <div className="mt-auto flex items-center justify-between">
+              <div className="flex items-center border border-[var(--cp-border)] rounded-full h-7 bg-background shadow-sm">
+                <button 
+                  onClick={() => updateQuantity(item.product.id, Math.max(1, item.quantity - 1))}
+                  className="w-7 h-full flex items-center justify-center hover:bg-muted"
+                >
+                  <Minus className="h-2.5 w-2.5" />
+                </button>
+                <span className="w-6 text-center text-xs font-bold font-mono">{item.quantity}</span>
+                <button 
+                  onClick={() => updateQuantity(item.product.id, item.quantity + 1)}
+                  className="w-7 h-full flex items-center justify-center hover:bg-muted"
+                >
+                  <Plus className="h-2.5 w-2.5" />
+                </button>
+              </div>
+              <button 
+                onClick={() => removeItem(item.product.id)}
+                className="text-[0.65rem] font-bold text-destructive/80 hover:text-destructive uppercase tracking-tighter"
+              >
+                Remove
+              </button>
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function MiniCartFooter() {
+  const { subtotal } = useCart();
+  const { currency } = useCurrencyStore();
+  const { data: rate } = useExchangeRate();
+  const [, setLocation] = useLocation();
+
+  return (
+    <>
+      <div className="flex justify-between items-baseline">
+        <span className="text-sm font-bold uppercase tracking-widest text-muted-foreground">Subtotal</span>
+        <div className="text-right">
+          <p className="text-2xl font-mono font-bold text-primary">
+            {formatPrice(subtotal, currency, rate)}
+          </p>
+          {currency === "KES" && (
+            <p className="text-[0.6rem] font-mono text-muted-foreground">≈ UGX {(subtotal * (rate || 30)).toLocaleString()}</p>
+          )}
+        </div>
+      </div>
+      <div className="grid grid-cols-1 gap-2">
+        <Button 
+          onClick={() => setLocation("/checkout")}
+          disabled={subtotal === 0}
+          className="w-full h-12 rounded-xl font-bold bg-[var(--cp-cta)] hover:bg-[var(--cp-cta-hover)] shadow-lg shadow-primary/10"
+        >
+          Checkout Now <ArrowRight className="ml-2 h-4 w-4" />
+        </Button>
+        <Button 
+          variant="ghost" 
+          onClick={() => setLocation("/cart")}
+          className="w-full h-10 rounded-xl text-muted-foreground text-sm"
+        >
+          View Full Cart
+        </Button>
+      </div>
+    </>
+  );
+}
+
+

@@ -141,6 +141,20 @@
   --tracking-normal: 0em;
   --spacing: 0.25rem;
 
+  /* CP Design System Aliases */
+  --cp-bg: hsl(var(--background));
+  --cp-surface: hsl(var(--card));
+  --cp-surface-2: hsl(var(--muted));
+  --cp-border: hsl(var(--border));
+  --cp-text: hsl(var(--foreground));
+  --cp-text-muted: hsl(var(--muted-foreground));
+  --cp-accent: hsl(var(--primary));
+  --cp-cta: hsl(var(--primary));
+  --cp-cta-hover: #b08922; /* Slightly darker than primary #C49A2A */
+  --cp-cta-text: hsl(var(--primary-foreground));
+  --cp-success: #10b981;
+  --cp-error: #ef4444;
+
   --sidebar-primary-border: hsl(var(--sidebar-primary));
   --sidebar-primary-border: hsl(from hsl(var(--sidebar-primary)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
   --sidebar-accent-border: hsl(var(--sidebar-accent));
@@ -214,6 +228,18 @@
   --chart-3: 30 80% 55%;
   --chart-4: 280 65% 60%;
   --chart-5: 340 75% 55%;
+
+  /* CP Design System Dark Aliases */
+  --cp-bg: hsl(var(--background));
+  --cp-surface: hsl(var(--card));
+  --cp-surface-2: hsl(var(--muted));
+  --cp-border: hsl(var(--border));
+  --cp-text: hsl(var(--foreground));
+  --cp-text-muted: hsl(var(--muted-foreground));
+  --cp-accent: hsl(var(--primary));
+  --cp-cta: hsl(var(--primary));
+  --cp-cta-hover: #b08922;
+  --cp-cta-text: hsl(var(--primary-foreground));
 }
 
 @layer base {

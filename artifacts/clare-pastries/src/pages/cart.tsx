@@ -24,8 +24,14 @@ import {
   Phone,
   CheckCircle2,
   Loader2,
+  Lock,
+  Smartphone,
+  CreditCard,
+  Banknote,
+  Truck,
+  Store,
 } from "lucide-react";
-import { Link } from "wouter";
+import { Link, useLocation } from "wouter";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -36,59 +42,60 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import { supabase } from "@/lib/supabase";
+import { cn } from "@/lib/utils";
 
-type ConfirmedOrder = {
-  id: string;
-  trackingToken: string;
-  totalKes: number;
-};
-
-export default function Cart() {
-  const { items, removeItem, updateQuantity, clearCart, subtotal } = useCart();
+export default function CartPage() {
+  const { items, removeItem, updateQuantity, clearCart, subtotal, itemCount } = useCart();
   const { currency } = useCurrencyStore();
   const { data: rate } = useExchangeRate();
   const { user } = useAuth();
+  const [, setLocation] = useLocation();
+
   const [open, setOpen] = useState(false);
-  // Security: Don't pre-fill admin info into guest checkout forms
+  const [placing, setPlacing] = useState(false);
+  const [placeError, setPlaceError] = useState<string | null>(null);
+  const [confirmedOrder, setConfirmedOrder] = useState<{ id: string; trackingToken: string; totalKes: number } | null>(null);
+
+  // Form State
   const [name, setName] = useState("");
-  const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
   const [address, setAddress] = useState("");
-  const [notes, setNotes] = useState("");
   const [fulfillment, setFulfillment] = useState<"DELIVERY" | "PICKUP">("DELIVERY");
   const [paymentMethod, setPaymentMethod] = useState<"MPESA" | "CASH" | "CARD">("MPESA");
-  const [confirmedOrder, setConfirmedOrder] = useState<ConfirmedOrder | null>(null);
-  const [placing, setPlacing] = useState(false);
-  const [placeError, setPlaceError] = useState("");
+  const [notes, setNotes] = useState("");
 
   const deliveryFee = fulfillment === "DELIVERY" && subtotal > 0 ? 200 : 0;
   const total = subtotal + deliveryFee;
 
   const placeOrder = async () => {
-    setPlacing(true);
-    setPlaceError("");
-    try {
-      const trackingToken = crypto.randomUUID();
+    if (!name || !phone || (fulfillment === "DELIVERY" && !address)) {
+      setPlaceError("Please fill in all required fields.");
+      return;
+    }
 
+    setPlacing(true);
+    setPlaceError(null);
+
+    try {
+      const trackingToken = Math.random().toString(36).substring(2, 15);
+      
       const { data: order, error: orderError } = await supabase
         .from("Order")
         .insert({
-          trackingToken,
-          userId: user?.id || null,
-          guestName: name,
-          guestPhone: phone,
-          guestEmail: email || null,
+          customerName: name,
+          customerEmail: email || null,
+          customerPhone: phone,
+          deliveryAddress: fulfillment === "DELIVERY" ? address : null,
+          fulfillmentType: fulfillment,
+          paymentMethod,
           subtotalKes: subtotal,
           deliveryFeeKes: deliveryFee,
           totalKes: total,
-          displayCurrency: currency,
-          displayTotal: currency === "KES" ? total : total * (rate ?? 30),
-          fulfillment,
-          deliveryStreet: fulfillment === "DELIVERY" ? address : null,
           notes: notes || null,
           status: "PENDING",
-          paymentStatus: "UNPAID",
-          paymentMethod,
+          trackingToken,
+          userId: user?.id || null,
         })
         .select()
         .single();
@@ -98,7 +105,6 @@ export default function Cart() {
       const orderItems = items.map((it) => ({
         orderId: order.id,
         productId: it.product.id,
-        productName: it.product.name,
         quantity: it.quantity,
         unitPriceKes: it.product.priceKes,
         totalPriceKes: it.product.priceKes * it.quantity,
@@ -120,55 +126,84 @@ export default function Cart() {
 
       setConfirmedOrder({ id: order.id, trackingToken, totalKes: total });
       clearCart();
-    } catch (err: unknown) {
-      setPlaceError(err instanceof Error ? err.message : "Failed to place order. Please try again.");
+    } catch (err: any) {
+      setPlaceError(err.message || "Something went wrong.");
     } finally {
       setPlacing(false);
     }
   };
 
-  if (items.length === 0 && !confirmedOrder) {
+  if (confirmedOrder) {
     return (
       <Layout>
-        <div className="flex-1 flex flex-col items-center justify-center py-32 px-4">
-          <div className="w-24 h-24 bg-muted rounded-full flex items-center justify-center mb-6">
-            <ShoppingBag className="h-10 w-10 text-muted-foreground" />
-          </div>
-          <h2 className="text-3xl font-serif font-bold mb-4">Your bag is empty</h2>
-          <p className="text-muted-foreground mb-8 text-center max-w-md">
-            Looks like you haven&apos;t added any pastries yet. Let&apos;s fix that.
-          </p>
-          <Link href="/menu">
-            <Button size="lg" className="rounded-full px-8 h-12">
-              Browse the Menu <ArrowRight className="ml-2 h-4 w-4" />
-            </Button>
-          </Link>
+        <div className="max-w-2xl mx-auto py-20 px-6 text-center">
+          <motion.div
+            initial={{ scale: 0.8, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            className="flex flex-col items-center gap-6"
+          >
+            <div className="h-20 w-20 bg-green-100 rounded-full flex items-center justify-center text-green-600">
+              <CheckCircle2 className="h-12 w-12" />
+            </div>
+            <h1 className="text-4xl font-serif font-bold text-foreground">Order Placed!</h1>
+            <p className="text-muted-foreground text-lg max-w-md mx-auto">
+              Thank you, {name.split(" ")[0]}. Clare is getting started on your order.
+            </p>
+            
+            <div className="bg-[var(--cp-surface-2)] border border-dashed border-[var(--cp-border)] p-6 rounded-xl w-full max-w-sm">
+              <p className="text-xs uppercase tracking-widest text-muted-foreground mb-1">Order Reference</p>
+              <p className="font-mono text-xl font-bold">#{confirmedOrder.id.slice(0, 8).toUpperCase()}</p>
+            </div>
+
+            <div className="flex flex-col sm:flex-row gap-4 w-full justify-center mt-4">
+              <Button 
+                size="lg" 
+                className="rounded-full px-8 h-12 font-bold shadow-lg shadow-primary/20"
+                onClick={() => setLocation(`/orders/${confirmedOrder.id}?token=${confirmedOrder.trackingToken}`)}
+              >
+                Track Your Order <ArrowRight className="ml-2 h-4 w-4" />
+              </Button>
+              <Link href="/menu">
+                <Button variant="ghost" size="lg" className="rounded-full px-8 h-12">
+                  Continue Shopping
+                </Button>
+              </Link>
+            </div>
+          </motion.div>
         </div>
       </Layout>
     );
   }
 
-  if (confirmedOrder) {
+  if (items.length === 0) {
     return (
       <Layout>
-        <div className="flex-1 flex flex-col items-center justify-center py-32 px-4 text-center">
-          <CheckCircle2 className="h-16 w-16 text-primary mb-6" />
-          <h2 className="text-3xl font-serif font-bold mb-3">Order Placed!</h2>
-          <p className="text-muted-foreground mb-2">Thank you, {name || "friend"}.</p>
-          <p className="font-mono text-lg mb-2">#{confirmedOrder.trackingToken.slice(0, 8).toUpperCase()}</p>
-          <p className="text-muted-foreground mb-8 max-w-md">
-            We&apos;ll call you on {phone} to confirm. Pay{" "}
-            {formatPrice(confirmedOrder.totalKes, currency, rate)} via M-Pesa to{" "}
-            <span className="font-mono">+254 724 848228</span>.
-          </p>
-          <div className="flex gap-3">
-            <Link href="/menu">
-              <Button size="lg" variant="outline" className="rounded-full">Browse more</Button>
-            </Link>
-            <Link href="/account">
-              <Button size="lg" className="rounded-full">View my orders</Button>
-            </Link>
-          </div>
+        <div className="max-w-4xl mx-auto py-32 px-6 text-center">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="flex flex-col items-center gap-6"
+          >
+            <div className="p-8 rounded-full bg-[var(--cp-surface-2)]">
+              <ShoppingBag className="h-20 w-20 text-[var(--cp-text-muted)] opacity-30" />
+            </div>
+            <h2 className="text-3xl md:text-4xl font-serif font-bold text-foreground">Your cart is empty</h2>
+            <p className="text-muted-foreground text-lg max-w-md">
+              Browse Clare&apos;s menu and add something delicious to your bag.
+            </p>
+            <div className="flex flex-col gap-4">
+              <Link href="/menu">
+                <Button size="lg" className="rounded-full px-10 h-14 text-base font-bold bg-[var(--cp-cta)] hover:bg-[var(--cp-cta-hover)] shadow-lg shadow-primary/20 transition-all">
+                  Browse Menu <ArrowRight className="ml-2 h-5 w-5" />
+                </Button>
+              </Link>
+              <Link href="/">
+                <Button variant="ghost" className="text-muted-foreground hover:text-foreground transition-colors">
+                  ← Back to Home
+                </Button>
+              </Link>
+            </div>
+          </motion.div>
         </div>
       </Layout>
     );
@@ -176,183 +211,212 @@ export default function Cart() {
 
   return (
     <Layout>
-      <div className="py-12 md:py-20 bg-background">
-        <div className="container mx-auto px-4 md:px-6 max-w-6xl">
-          <h1 className="text-4xl md:text-5xl font-serif font-bold mb-10">Your Bag</h1>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 md:py-16">
+        {/* Page Header */}
+        <div className="flex justify-between items-baseline mb-10 border-b border-[var(--cp-border)] pb-6">
+          <h1 className="text-3xl md:text-4xl font-serif font-bold text-[var(--cp-text)]">Shopping Cart</h1>
+          <span className="text-lg font-sans text-[var(--cp-text-muted)] font-medium">
+            {itemCount} {itemCount === 1 ? 'item' : 'items'}
+          </span>
+        </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
-            <div className="lg:col-span-2 space-y-6">
-              {items.map((item) => (
-                <Card key={item.product.id} className="overflow-hidden border-border bg-card shadow-sm">
-                  <div className="flex flex-col sm:flex-row">
-                    <div className="w-full sm:w-32 h-32 sm:h-auto bg-muted shrink-0">
-                      {item.product.imageUrl && (
-                        <img
-                          src={item.product.imageUrl}
-                          alt={item.product.name}
-                          className="w-full h-full object-cover"
-                        />
-                      )}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
+          {/* Left Column: Items */}
+          <div className="lg:col-span-8 space-y-6">
+            <div className="bg-background rounded-2xl overflow-hidden">
+              <AnimatePresence mode="popLayout">
+                {items.map((it, idx) => (
+                  <motion.div
+                    key={it.product.id}
+                    layout
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -20, height: 0 }}
+                    className={cn(
+                      "flex gap-4 md:gap-6 py-6 md:py-8",
+                      idx !== items.length - 1 && "border-b border-[var(--cp-border)]"
+                    )}
+                  >
+                    {/* Item Image */}
+                    <div className="h-20 w-20 md:h-28 md:w-28 rounded-xl overflow-hidden shrink-0 border border-[var(--cp-border)] bg-[var(--cp-surface-2)]">
+                      <img src={it.product.imageUrl} alt={it.product.name} className="h-full w-full object-cover" />
                     </div>
-                    <CardContent className="p-4 sm:p-6 flex-1 flex flex-col justify-between">
-                      <div className="flex justify-between items-start mb-4">
-                        <div>
-                          <h3 className="font-bold text-lg text-foreground">{item.product.name}</h3>
-                          <p className="text-sm text-muted-foreground line-clamp-1">{item.product.category}</p>
+
+                    {/* Item Details */}
+                    <div className="flex-1 flex flex-col min-w-0">
+                      <div className="flex justify-between items-start gap-4 mb-1">
+                        <div className="min-w-0">
+                          <h3 className="text-lg font-serif font-bold truncate text-[var(--cp-text)]">{it.product.name}</h3>
+                          <span className="text-[0.65rem] font-mono font-bold uppercase tracking-widest text-[var(--cp-text-muted)] bg-[var(--cp-surface-2)] px-2 py-0.5 rounded-full">
+                            {it.product.category}
+                          </span>
                         </div>
-                        <p className="font-mono font-bold text-primary">
-                          {formatPrice(item.product.priceKes * item.quantity, currency, rate)}
-                        </p>
-                      </div>
-                      <div className="flex items-center justify-between mt-auto">
-                        <div className="flex items-center border border-border rounded-full bg-background">
-                          <Button
-                            variant="ghost" size="icon" className="h-8 w-8 rounded-l-full"
-                            onClick={() => updateQuantity(item.product.id, Math.max(1, item.quantity - 1))}
-                            disabled={item.quantity <= 1}
-                          ><Minus className="h-3 w-3" /></Button>
-                          <span className="w-8 text-center text-sm font-medium">{item.quantity}</span>
-                          <Button
-                            variant="ghost" size="icon" className="h-8 w-8 rounded-r-full"
-                            onClick={() => updateQuantity(item.product.id, item.quantity + 1)}
-                          ><Plus className="h-3 w-3" /></Button>
+                        <div className="text-right shrink-0">
+                          <p className="font-mono text-lg font-bold text-[var(--cp-accent)]">
+                            {formatPrice(it.product.priceKes * it.quantity, currency, rate)}
+                          </p>
                         </div>
-                        <Button
-                          variant="ghost" size="sm"
-                          className="text-destructive hover:text-destructive hover:bg-destructive/10"
-                          onClick={() => removeItem(item.product.id)}
-                        ><Trash2 className="h-4 w-4 mr-2" /> Remove</Button>
                       </div>
-                    </CardContent>
-                  </div>
-                </Card>
-              ))}
+                      
+                      <p className="text-xs text-[var(--cp-text-muted)] mb-4">
+                        {formatPrice(it.product.priceKes, currency, rate)} per item
+                      </p>
+
+                      <div className="mt-auto flex items-center justify-between">
+                        {/* Qty Selector */}
+                        <div className="flex items-center border border-[var(--cp-border)] rounded-full h-9 bg-background shadow-sm">
+                          <button
+                            onClick={() => updateQuantity(it.product.id, Math.max(1, it.quantity - 1))}
+                            className="w-8 h-full flex items-center justify-center hover:bg-muted transition-colors rounded-l-full"
+                          >
+                            <Minus className="h-3 w-3" />
+                          </button>
+                          <span className="font-mono text-sm font-bold w-8 text-center">
+                            {it.quantity}
+                          </span>
+                          <button
+                            onClick={() => updateQuantity(it.product.id, it.quantity + 1)}
+                            className="w-8 h-full flex items-center justify-center hover:bg-muted transition-colors rounded-r-full"
+                          >
+                            <Plus className="h-3 w-3" />
+                          </button>
+                        </div>
+
+                        {/* Remove */}
+                        <button
+                          onClick={() => removeItem(it.product.id)}
+                          className="flex items-center gap-1.5 text-xs font-medium text-[var(--cp-error)] hover:opacity-80 transition-opacity"
+                        >
+                          <Trash2 className="h-3.5 w-3.5" />
+                          Remove
+                        </button>
+                      </div>
+                    </div>
+                  </motion.div>
+                ))}
+              </AnimatePresence>
             </div>
 
-            <div className="lg:col-span-1">
-              <Card className="bg-muted/30 border border-border shadow-sm sticky top-24">
-                <CardContent className="p-6 md:p-8">
-                  <h3 className="text-2xl font-serif font-bold mb-6">Order Summary</h3>
-                  
-                  <div className="space-y-4 text-sm">
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">Subtotal</span>
-                      <span className="font-mono font-medium">{formatPrice(subtotal, currency, rate)}</span>
-                    </div>
-                    <Separator className="my-4" />
-                    <div className="flex justify-between items-center">
-                      <span className="text-lg font-bold text-foreground">Total</span>
-                      <span className="text-xl font-mono font-bold text-primary">{formatPrice(subtotal, currency, rate)}</span>
-                    </div>
+            <div className="pt-8 flex flex-col sm:flex-row justify-between items-center gap-6 border-t border-[var(--cp-border)]">
+              <Link href="/menu">
+                <Button variant="ghost" className="text-muted-foreground hover:text-foreground font-medium">
+                  ← Continue Shopping
+                </Button>
+              </Link>
+
+              <div className="flex gap-2 w-full sm:w-auto">
+                <Input placeholder="Enter promo code" className="rounded-xl h-11 w-full sm:w-48" />
+                <Button variant="outline" className="rounded-xl h-11 px-6 border-[var(--cp-border)] hover:bg-muted" onClick={() => console.log("Coming soon")}>
+                  Apply
+                </Button>
+              </div>
+            </div>
+          </div>
+
+          {/* Right Column: Summary */}
+          <div className="lg:col-span-4 lg:sticky lg:top-[100px]">
+            <Card className="rounded-2xl border-[var(--cp-border)] bg-[var(--cp-surface)] shadow-xl shadow-black/5 overflow-hidden">
+              <CardContent className="p-6 md:p-8">
+                <p className="text-[0.75rem] font-mono font-bold uppercase tracking-[0.1em] text-[var(--cp-text-muted)] mb-6">
+                  Order Summary
+                </p>
+                
+                <div className="space-y-4">
+                  <div className="flex justify-between text-sm">
+                    <span className="text-[var(--cp-text-muted)] font-medium">Subtotal ({itemCount} {itemCount === 1 ? 'item' : 'items'})</span>
+                    <span className="text-[var(--cp-text)] font-mono font-bold">{formatPrice(subtotal, currency, rate)}</span>
                   </div>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-[var(--cp-text-muted)] font-medium">Delivery fee</span>
+                    <span className="text-green-600 font-mono font-bold text-[0.75rem] bg-green-50 px-2 py-0.5 rounded-full">Calculated at checkout</span>
+                  </div>
+                  
+                  <Separator className="bg-[var(--cp-border)] my-6 opacity-50" />
+                  
+                  <div>
+                    <div className="flex justify-between items-baseline mb-1">
+                      <span className="text-[0.8rem] font-mono font-bold uppercase text-[var(--cp-text)]">Total</span>
+                      <span className="text-3xl font-serif font-bold text-[var(--cp-text)]">
+                        {formatPrice(subtotal, currency, rate)}
+                      </span>
+                    </div>
+                    {currency === "KES" && (
+                      <p className="text-[0.75rem] font-mono text-[var(--cp-text-muted)] text-right">
+                        ≈ UGX {(subtotal * (rate || 30)).toLocaleString()}
+                      </p>
+                    )}
+                  </div>
+
                   <Button
                     size="lg"
-                    className="w-full mt-8 rounded-full h-12 text-base shadow-md shadow-primary/20"
-                    onClick={() => setOpen(true)}
-                  >Proceed to Checkout</Button>
-                  <div className="mt-6 flex items-center justify-center gap-2 text-xs text-muted-foreground">
-                    <Phone className="h-3 w-3" />
-                    <span>Need help? Call +254 724 848228</span>
+                    className="w-full mt-6 rounded-xl h-14 text-base font-bold bg-[var(--cp-cta)] hover:bg-[var(--cp-cta-hover)] text-[var(--cp-cta-text)] shadow-lg shadow-primary/20 transition-all hover:scale-[1.01] active:scale-[0.98]"
+                    onClick={() => setLocation("/checkout")}
+                  >
+                    Proceed to Checkout <ArrowRight className="ml-2 h-5 w-5" />
+                  </Button>
+
+                  <div className="pt-8 space-y-4">
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="flex items-center gap-2 text-[var(--cp-text-muted)]">
+                        <Lock className="h-3.5 w-3.5 text-[var(--cp-accent)]" />
+                        <span className="text-[0.8rem] font-medium">Secure checkout</span>
+                      </div>
+                      <div className="flex items-center gap-2 text-[var(--cp-text-muted)]">
+                        <Smartphone className="h-3.5 w-3.5 text-[var(--cp-accent)]" />
+                        <span className="text-[0.8rem] font-medium">M-Pesa accepted</span>
+                      </div>
+                      <div className="flex items-center gap-2 text-[var(--cp-text-muted)]">
+                        <CreditCard className="h-3.5 w-3.5 text-[var(--cp-accent)]" />
+                        <span className="text-[0.8rem] font-medium">Card accepted</span>
+                      </div>
+                      <div className="flex items-center gap-2 text-[var(--cp-text-muted)]">
+                        <Banknote className="h-3.5 w-3.5 text-[var(--cp-accent)]" />
+                        <span className="text-[0.8rem] font-medium">Cash on delivery</span>
+                      </div>
+                    </div>
+
+                    <div className="pt-4 border-t border-[var(--cp-border)] border-dashed space-y-2">
+                      <div className="flex items-center gap-2 text-[var(--cp-text-muted)]">
+                        <Truck className="h-3.5 w-3.5 text-[var(--cp-accent)]" />
+                        <span className="text-[0.8rem]">Delivery: 45–90 minutes</span>
+                      </div>
+                      <div className="flex items-center gap-2 text-[var(--cp-text-muted)]">
+                        <Store className="h-3.5 w-3.5 text-[var(--cp-accent)]" />
+                        <span className="text-[0.8rem]">Free pickup available</span>
+                      </div>
+                    </div>
                   </div>
-                </CardContent>
-              </Card>
-            </div>
+                </div>
+              </CardContent>
+            </Card>
           </div>
         </div>
       </div>
-
-      <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="sm:max-w-lg">
-          <DialogHeader>
-            <DialogTitle className="font-serif text-2xl">Complete Your Order</DialogTitle>
-            <DialogDescription>Tell us where to send your bakes. We&apos;ll confirm by phone.</DialogDescription>
-          </DialogHeader>
-
-          <form
-            onSubmit={(e) => { e.preventDefault(); placeOrder(); }}
-            className="space-y-4"
-          >
-            <div className="grid grid-cols-2 gap-3">
-              <div className="space-y-2">
-                <Label htmlFor="co-name">Full Name</Label>
-                <Input id="co-name" value={name} onChange={(e) => setName(e.target.value)} placeholder="Your name" className="rounded-xl" required />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="co-phone">Phone Number</Label>
-                <Input id="co-phone" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+254..." className="rounded-xl" required />
-              </div>
-            </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="co-email">Email (optional)</Label>
-              <Input id="co-email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Email address" className="rounded-xl" />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="co-notes">Order Notes (optional)</Label>
-              <Textarea id="co-notes" value={notes} onChange={(e) => setNotes(e.target.value)} rows={2} placeholder="Special instructions or preferences..." className="rounded-xl" />
-            </div>
-
-            <div className="grid grid-cols-2 gap-3">
-              <div className="space-y-2">
-                <Label>Fulfillment</Label>
-                <Select value={fulfillment} onValueChange={(v) => setFulfillment(v as "DELIVERY" | "PICKUP")}>
-                  <SelectTrigger className="rounded-xl"><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="DELIVERY">Delivery (+Ksh 200)</SelectItem>
-                    <SelectItem value="PICKUP">Pickup (Free)</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-2">
-                <Label>Payment Method</Label>
-                <Select value={paymentMethod} onValueChange={(v) => setPaymentMethod(v as "MPESA" | "CASH" | "CARD")}>
-                  <SelectTrigger className="rounded-xl"><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="MPESA">M-Pesa</SelectItem>
-                    <SelectItem value="CASH">Cash</SelectItem>
-                    <SelectItem value="CARD">Card</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-
-            <AnimatePresence>
-              {fulfillment === "DELIVERY" && (
-                <motion.div
-                  initial={{ height: 0, opacity: 0 }}
-                  animate={{ height: "auto", opacity: 1 }}
-                  exit={{ height: 0, opacity: 0 }}
-                  className="space-y-2 overflow-hidden"
-                >
-                  <Label htmlFor="co-addr">Delivery Address</Label>
-                  <Input id="co-addr" value={address} onChange={(e) => setAddress(e.target.value)} placeholder="Estate, street, landmark" className="rounded-xl" required />
-                </motion.div>
-              )}
-            </AnimatePresence>
-
-            <div className="bg-muted/50 p-4 rounded-2xl border border-border mt-2">
-              <div className="flex justify-between items-center">
-                <span className="text-sm font-medium text-muted-foreground">Total to Pay</span>
-                <span className="text-xl font-mono font-bold text-primary">
-                  {formatPrice(total, currency, rate)}
-                </span>
-              </div>
-            </div>
-
-            {placeError && <p className="text-sm text-destructive font-medium">{placeError}</p>}
-
-            <div className="flex flex-col gap-2 pt-2">
-              <Button type="submit" disabled={placing} className="w-full rounded-full h-12 font-bold shadow-lg shadow-primary/20">
-                {placing ? <Loader2 className="h-5 w-5 animate-spin mr-2" /> : "Place Order"}
-              </Button>
-              <Button type="button" variant="ghost" onClick={() => setOpen(false)} className="w-full rounded-full h-10">
-                Cancel
-              </Button>
-            </div>
-          </form>
-        </DialogContent>
-      </Dialog>
+      <MobileCheckoutBar />
     </Layout>
+  );
+}
+
+function MobileCheckoutBar() {
+  const { subtotal } = useCart();
+  const { currency } = useCurrencyStore();
+  const { data: rate } = useExchangeRate();
+  const [, setLocation] = useLocation();
+
+  if (subtotal === 0) return null;
+
+  return (
+    <div className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-[var(--cp-surface)] border-t border-[var(--cp-border)] p-4 pb-8 flex items-center justify-between shadow-[0_-4px_20px_rgba(0,0,0,0.08)]">
+      <div className="flex flex-col">
+        <span className="text-[0.65rem] font-bold uppercase tracking-widest text-[var(--cp-text-muted)]">Total</span>
+        <span className="text-xl font-mono font-bold text-[var(--cp-text)]">{formatPrice(subtotal, currency, rate)}</span>
+      </div>
+      <Button 
+        onClick={() => setLocation("/checkout")}
+        className="rounded-xl px-8 h-12 font-bold bg-[var(--cp-cta)] hover:bg-[var(--cp-cta-hover)] shadow-lg shadow-primary/20"
+      >
+        Checkout <ArrowRight className="ml-2 h-4 w-4" />
+      </Button>
+    </div>
   );
 }

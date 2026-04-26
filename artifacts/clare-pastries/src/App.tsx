@@ -9,6 +9,8 @@ import Gallery from "@/pages/gallery";
 import About from "@/pages/about";
 import Contact from "@/pages/contact";
 import Cart from "@/pages/cart";
+import Checkout from "@/pages/checkout";
+import OrderTracking from "@/pages/order-tracking";
 import Account from "@/pages/account";
 import AdminDashboard from "@/pages/admin/dashboard";
 import AdminOrders from "@/pages/admin/orders";
@@ -42,6 +44,8 @@ function Router() {
       <Route path="/about" component={About} />
       <Route path="/contact" component={Contact} />
       <Route path="/cart" component={Cart} />
+      <Route path="/checkout" component={Checkout} />
+      <Route path="/orders/:id" component={OrderTracking} />
       <Route path="/account" component={Account} />
       <Route path="/admin" component={AdminDashboard} />
       <Route path="/admin/orders" component={AdminOrders} />
