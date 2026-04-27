@@ -67,10 +67,12 @@ export function useCreateOrder() {
       displayTotal: number
     }) => {
       const trackingToken = crypto.randomUUID()
+      const orderId = crypto.randomUUID()
 
       const { data: order, error: orderError } = await supabase
         .from('Order')
         .insert({
+          id: orderId,
           trackingToken,
           userId: orderData.userId || null,
           guestName: orderData.customerName,
@@ -95,6 +97,7 @@ export function useCreateOrder() {
       if (orderError) throw orderError
 
       const orderItems = orderData.items.map((item) => ({
+        id: crypto.randomUUID(),
         orderId: order.id,
         sanityId: item.product.id,
         productName: item.product.name,

@@ -125,10 +125,12 @@ export default function CheckoutPage() {
 
     try {
       const trackingToken = crypto.randomUUID();
+      const orderId = crypto.randomUUID();
       
       const { data: order, error: orderError } = await supabase
         .from("Order")
         .insert({
+          id: orderId,
           trackingToken: trackingToken,
           userId: user?.id || null,
           guestName: formData.name,
@@ -152,6 +154,7 @@ export default function CheckoutPage() {
       if (orderError) throw orderError;
 
       const orderItems = items.map((it) => ({
+        id: crypto.randomUUID(),
         orderId: order.id,
         sanityId: it.product.id,
         productName: it.product.name,
