@@ -14,8 +14,8 @@ export default async function handler(req, res) {
 
   const { orderId, customerName, customerPhone, itemsList, totalKes, fulfillment } = req.body;
 
-  const phone = process.env.CALLMEBOT_PHONE;
-  const apikey = process.env.CALLMEBOT_API_KEY;
+  const phone = process.env.VITE_CALLMEBOT_PHONE;
+  const apikey = process.env.VITE_CALLMEBOT_API_KEY;
 
   if (!phone || !apikey) {
     return res.status(500).json({ error: 'CallMeBot credentials not configured' });
