@@ -195,25 +195,30 @@ export default function CheckoutPage() {
         const authString = payheroApiKey.includes(':') ? payheroApiKey : `${payheroApiKey}:`;
         const authHeader = btoa(authString);
 
-        const response = await fetch("https://backend.payhero.co.ke/api/v2/payments", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "Authorization": `Basic ${authHeader}`
-          },
-          body: JSON.stringify({
-            amount: Math.round(total),
-            phone_number: formattedPhone,
-            channel_id: parseInt(payheroChannelId),
-            provider: "m-pesa",
-            external_reference: trackingToken,
-            callback_url: "https://clarepastries.com/api/callback" 
-          })
-        });
+        try {
+          const response = await fetch("https://backend.payhero.co.ke/api/v2/payments", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "Authorization": `Basic ${authHeader}`
+            },
+            body: JSON.stringify({
+              amount: Math.round(total),
+              phone_number: formattedPhone,
+              channel_id: parseInt(payheroChannelId),
+              provider: "m-pesa",
+              external_reference: trackingToken,
+              callback_url: "https://clarepastries.com/api/callback" 
+            })
+          });
 
-        if (!response.ok) {
-          const errorData = await response.text();
-          throw new Error(`PayHero STK Failed (${response.status}): ${errorData}`);
+          if (!response.ok) {
+            const errorData = await response.text();
+            console.error(`PayHero STK Failed (${response.status}): ${errorData}`);
+            // Note: We don't throw the error here so the order is still created as UNPAID
+          }
+        } catch (err) {
+          console.error("PayHero Network Error:", err);
         }
       }
 
