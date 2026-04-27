@@ -147,6 +147,8 @@ export default function CheckoutPage() {
           notes: formData.notes || null,
           status: "PENDING",
           paymentStatus: "UNPAID",
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
         })
         .select()
         .single();

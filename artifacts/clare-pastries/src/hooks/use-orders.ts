@@ -90,6 +90,8 @@ export function useCreateOrder() {
           status: 'PENDING',
           paymentStatus: 'UNPAID',
           paymentMethod: orderData.paymentMethod,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
         })
         .select()
         .single()
