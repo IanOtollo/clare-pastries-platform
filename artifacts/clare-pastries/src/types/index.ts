@@ -35,8 +35,8 @@ export interface Order {
   id: string
   trackingToken: string
   userId?: string
-  guestName?: string
-  guestPhone?: string
+  customerName?: string
+  customerPhone?: string
   guestEmail?: string
   items: OrderItem[]
   subtotalKes: number
@@ -44,10 +44,10 @@ export interface Order {
   totalKes: number
   displayCurrency: string
   displayTotal: number
-  fulfillment: 'DELIVERY' | 'PICKUP'
+  fulfillmentType: 'DELIVERY' | 'PICKUP'
   deliveryArea?: string
   deliveryLandmark?: string
-  deliveryStreet?: string
+  deliveryAddress?: string
   deliveryTown?: string
   status: OrderStatus
   paymentStatus: 'UNPAID' | 'PAID' | 'REFUNDED'
