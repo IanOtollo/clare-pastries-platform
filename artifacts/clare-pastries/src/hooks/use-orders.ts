@@ -145,7 +145,8 @@ async function notifyClare(order: Record<string, unknown>, items: CartItem[]) {
 
   try {
     await fetch(
-      `https://api.callmebot.com/whatsapp.php?phone=${phone}&text=${message}&apikey=${apikey}`
+      `https://api.callmebot.com/whatsapp.php?phone=${phone}&text=${message}&apikey=${apikey}`,
+      { mode: 'no-cors' }
     )
   } catch {
     // Never block order on notification failure

@@ -176,7 +176,7 @@ export default function CheckoutPage() {
         const msg = encodeURIComponent(
           `New Order!\nID: ${order.id.slice(0, 8)}\nCustomer: ${formData.name}\nPhone: ${formData.phone}\nItems: ${itemsList}\nTotal: KES ${total}\nType: ${formData.fulfillment}`
         );
-        fetch(`https://api.callmebot.com/whatsapp.php?phone=${cbPhone}&text=${msg}&apikey=${cbKey}`).catch(() => {});
+        fetch(`https://api.callmebot.com/whatsapp.php?phone=${cbPhone}&text=${msg}&apikey=${cbKey}`, { mode: 'no-cors' }).catch(() => {});
       }
 
       setOrderId(order.id);
