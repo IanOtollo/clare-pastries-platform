@@ -127,7 +127,8 @@ export function useCreateOrder() {
           formattedPhone = formattedPhone.slice(1);
         }
 
-        const authHeader = payheroApiKey.includes(':') ? btoa(payheroApiKey) : payheroApiKey;
+        const authString = payheroApiKey.includes(':') ? payheroApiKey : `${payheroApiKey}:`;
+        const authHeader = btoa(authString);
 
         const response = await fetch("https://backend.payhero.co.ke/api/v2/payments", {
           method: "POST",
