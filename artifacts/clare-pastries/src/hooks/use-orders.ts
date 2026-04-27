@@ -120,21 +120,35 @@ export function useCreateOrder() {
       const payheroApiKey = (import.meta as any).env.VITE_PAYHERO_API_KEY;
 
       if (orderData.paymentMethod === 'MPESA' && payheroChannelId && payheroApiKey) {
-        fetch("https://backend.payhero.co.ke/api/v2/payments", {
+        let formattedPhone = orderData.customerPhone || "";
+        if (formattedPhone.startsWith('0')) {
+          formattedPhone = '254' + formattedPhone.slice(1);
+        } else if (formattedPhone.startsWith('+')) {
+          formattedPhone = formattedPhone.slice(1);
+        }
+
+        const authHeader = payheroApiKey.includes(':') ? btoa(payheroApiKey) : payheroApiKey;
+
+        const response = await fetch("https://backend.payhero.co.ke/api/v2/payments", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            "Authorization": `Basic ${payheroApiKey}`
+            "Authorization": `Basic ${authHeader}`
           },
           body: JSON.stringify({
-            amount: orderData.totalKes,
-            phone_number: orderData.customerPhone,
+            amount: Math.round(orderData.totalKes),
+            phone_number: formattedPhone,
             channel_id: parseInt(payheroChannelId),
             provider: "m-pesa",
             external_reference: trackingToken,
             callback_url: "https://clarepastries.com/api/callback"
           })
-        }).catch((err) => console.error("PayHero STK Error:", err));
+        });
+
+        if (!response.ok) {
+          const errorData = await response.text();
+          throw new Error(`PayHero STK Failed (${response.status}): ${errorData}`);
+        }
       }
 
       return { order, trackingToken }
