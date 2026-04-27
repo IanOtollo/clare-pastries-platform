@@ -47,20 +47,19 @@ export function useCreateOrder() {
 
   return useMutation({
     mutationFn: async (orderData: {
-      guestName?: string
-      guestPhone?: string
-      guestEmail?: string
+      customerName?: string
+      customerPhone?: string
+      customerEmail?: string
       userId?: string
       items: CartItem[]
       subtotalKes: number
       deliveryFeeKes: number
       totalKes: number
-      fulfillment: 'DELIVERY' | 'PICKUP'
-      deliveryStreet?: string
+      fulfillmentType: 'DELIVERY' | 'PICKUP'
+      deliveryAddress?: string
       deliveryLandmark?: string
       deliveryBuilding?: string
       deliveryTown?: string
-      deliveryPhone?: string
       deliveryArea?: string
       notes?: string
       paymentMethod: 'MPESA' | 'CASH' | 'CARD'
@@ -74,23 +73,19 @@ export function useCreateOrder() {
         .insert({
           trackingToken,
           userId: orderData.userId || null,
-          guestName: orderData.guestName,
-          guestPhone: orderData.guestPhone,
-          guestEmail: orderData.guestEmail,
+          customerName: orderData.customerName,
+          customerPhone: orderData.customerPhone,
+          customerEmail: orderData.customerEmail,
           subtotalKes: orderData.subtotalKes,
           deliveryFeeKes: orderData.deliveryFeeKes,
           totalKes: orderData.totalKes,
-          displayCurrency: orderData.displayCurrency,
-          displayTotal: orderData.displayTotal,
-          fulfillment: orderData.fulfillment,
+          fulfillmentType: orderData.fulfillmentType,
           deliveryArea: orderData.deliveryArea,
           deliveryLandmark: orderData.deliveryLandmark,
-          deliveryStreet: orderData.deliveryStreet,
+          deliveryAddress: orderData.deliveryAddress,
           deliveryTown: orderData.deliveryTown,
-          deliveryPhone: orderData.deliveryPhone,
           notes: orderData.notes,
           status: 'PENDING',
-          paymentStatus: 'UNPAID',
           paymentMethod: orderData.paymentMethod,
         })
         .select()
@@ -124,8 +119,8 @@ export function useCreateOrder() {
 }
 
 async function notifyClare(order: Record<string, unknown>, items: CartItem[]) {
-  const phone = import.meta.env.VITE_CALLMEBOT_PHONE
-  const apikey = import.meta.env.VITE_CALLMEBOT_API_KEY
+  const phone = (import.meta as any).env.VITE_CALLMEBOT_PHONE
+  const apikey = (import.meta as any).env.VITE_CALLMEBOT_API_KEY
 
   if (!phone || !apikey) return
 

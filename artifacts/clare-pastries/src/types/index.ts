@@ -35,21 +35,20 @@ export interface Order {
   id: string
   trackingToken: string
   userId?: string
-  guestName?: string
-  guestPhone?: string
-  guestEmail?: string
+  customerName?: string
+  customerPhone?: string
+  customerEmail?: string
   items: OrderItem[]
   subtotalKes: number
   deliveryFeeKes: number
   totalKes: number
   displayCurrency: string
   displayTotal: number
-  fulfillment: 'DELIVERY' | 'PICKUP'
+  fulfillmentType: 'DELIVERY' | 'PICKUP'
   deliveryArea?: string
   deliveryLandmark?: string
-  deliveryStreet?: string
+  deliveryAddress?: string
   deliveryTown?: string
-  deliveryPhone?: string
   status: OrderStatus
   paymentStatus: 'UNPAID' | 'PAID' | 'REFUNDED'
   paymentMethod: 'MPESA' | 'CASH' | 'CARD'
