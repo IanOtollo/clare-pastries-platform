@@ -13,21 +13,7 @@ export function useOrders(userId?: string) {
         .eq('userId', userId)
         .order('createdAt', { ascending: false })
       if (error) throw error
-      return (data as any[]).map(o => ({
-        ...o,
-        guestName: o.guest_name,
-        guestPhone: o.guest_phone,
-        guestEmail: o.guest_email,
-        subtotalKes: o.subtotal_kes,
-        deliveryFeeKes: o.delivery_fee,
-        totalKes: o.total_kes,
-        deliveryStreet: o.delivery_street,
-        trackingToken: o.tracking_token,
-        paymentStatus: o.payment_status,
-        paymentMethod: o.payment_method,
-        createdAt: o.created_at,
-        updatedAt: o.updated_at,
-      })) as Order[]
+      return data as Order[]
     },
     enabled: !!userId,
   })
@@ -49,22 +35,7 @@ export function useOrder(id: string, token?: string) {
 
       const { data, error } = await query.single()
       if (error) throw error
-      const o = data as any
-      return {
-        ...o,
-        guestName: o.guest_name,
-        guestPhone: o.guest_phone,
-        guestEmail: o.guest_email,
-        subtotalKes: o.subtotal_kes,
-        deliveryFeeKes: o.delivery_fee,
-        totalKes: o.total_kes,
-        deliveryStreet: o.delivery_street,
-        trackingToken: o.tracking_token,
-        paymentStatus: o.payment_status,
-        paymentMethod: o.payment_method,
-        createdAt: o.created_at,
-        updatedAt: o.updated_at,
-      } as Order
+      return data as Order
     },
     enabled: !!id,
     refetchInterval: 10000,
@@ -100,22 +71,23 @@ export function useCreateOrder() {
       const { data: order, error: orderError } = await supabase
         .from('Order')
         .insert({
-          tracking_token: trackingToken,
-          user_id: orderData.userId || null,
-          guest_name: orderData.customerName,
-          guest_phone: orderData.customerPhone,
-          guest_email: orderData.guestEmail,
-          subtotal_kes: orderData.subtotalKes,
-          delivery_fee: orderData.deliveryFeeKes,
-          total_kes: orderData.totalKes,
+          trackingToken,
+          userId: orderData.userId || null,
+          guestName: orderData.customerName,
+          guestPhone: orderData.customerPhone,
+          guestEmail: orderData.guestEmail,
+          subtotalKes: orderData.subtotalKes,
+          deliveryFeeKes: orderData.deliveryFeeKes,
+          totalKes: orderData.totalKes,
+          displayCurrency: orderData.displayCurrency || 'KES',
+          displayTotal: orderData.displayTotal || orderData.totalKes,
           fulfillment: orderData.fulfillmentType,
-          delivery_area: orderData.deliveryArea,
-          delivery_landmark: orderData.deliveryLandmark,
-          delivery_street: orderData.deliveryAddress,
-          delivery_town: orderData.deliveryTown,
+          deliveryArea: orderData.deliveryArea,
+          deliveryLandmark: orderData.deliveryAddress, // mapping address to landmark
           notes: orderData.notes,
           status: 'PENDING',
-          payment_method: orderData.paymentMethod,
+          paymentStatus: 'UNPAID',
+          paymentMethod: orderData.paymentMethod,
         })
         .select()
         .single()
@@ -123,12 +95,12 @@ export function useCreateOrder() {
       if (orderError) throw orderError
 
       const orderItems = orderData.items.map((item) => ({
-        order_id: order.id,
-        product_id: item.product.id,
-        product_name: item.product.name,
+        orderId: order.id,
+        sanityId: item.product.id,
+        productName: item.product.name,
         quantity: item.quantity,
-        unit_price_kes: item.product.priceKes,
-        total_price_kes: item.product.priceKes * item.quantity,
+        unitPriceKes: item.product.priceKes,
+        totalPriceKes: item.product.priceKes * item.quantity,
       }))
 
       const { error: itemsError } = await supabase

@@ -17,16 +17,7 @@ export function useAdminOrders(status?: string) {
 
       const { data, error } = await query
       if (error) throw error
-      return (data as any[]).map(o => ({
-        ...o,
-        guestName: o.guest_name,
-        guestPhone: o.guest_phone,
-        guestEmail: o.guest_email,
-        totalKes: o.total_kes,
-        paymentStatus: o.payment_status,
-        createdAt: o.created_at,
-        deliveryStreet: o.delivery_street,
-      }))
+      return data
     },
     refetchInterval: 30000,
   })
@@ -42,23 +33,7 @@ export function useAdminOrderDetail(orderId: string | number | null) {
         .eq('id', orderId)
         .single()
       if (error) throw error
-      const o = data as any
-      return {
-        ...o,
-        guestName: o.guest_name,
-        guestPhone: o.guest_phone,
-        guestEmail: o.guest_email,
-        totalKes: o.total_kes,
-        paymentStatus: o.payment_status,
-        createdAt: o.created_at,
-        deliveryStreet: o.delivery_street,
-        items: (o.items || []).map((it: any) => ({
-          ...it,
-          productName: it.product_name,
-          unitPriceKes: it.unit_price_kes,
-          totalPriceKes: it.total_price_kes,
-        }))
-      }
+      return data
     },
     enabled: orderId != null,
   })
@@ -78,10 +53,10 @@ export function useUpdateOrderStatus() {
       paymentStatus?: string
     }) => {
       const updates: Record<string, unknown> = {
-        updated_at: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
       }
       if (status) updates.status = status.toUpperCase()
-      if (paymentStatus) updates.payment_status = paymentStatus.toUpperCase()
+      if (paymentStatus) updates.paymentStatus = paymentStatus.toUpperCase()
 
       const { error } = await supabase
         .from('Order')

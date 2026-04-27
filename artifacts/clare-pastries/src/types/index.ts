@@ -35,8 +35,8 @@ export interface Order {
   id: string
   trackingToken: string
   userId?: string
-  customerName?: string
-  customerPhone?: string
+  guestName?: string
+  guestPhone?: string
   guestEmail?: string
   items: OrderItem[]
   subtotalKes: number
@@ -44,11 +44,9 @@ export interface Order {
   totalKes: number
   displayCurrency: string
   displayTotal: number
-  fulfillmentType: 'DELIVERY' | 'PICKUP'
+  fulfillment: 'DELIVERY' | 'PICKUP'
   deliveryArea?: string
   deliveryLandmark?: string
-  deliveryAddress?: string
-  deliveryTown?: string
   status: OrderStatus
   paymentStatus: 'UNPAID' | 'PAID' | 'REFUNDED'
   paymentMethod: 'MPESA' | 'CASH' | 'CARD'
@@ -71,7 +69,7 @@ export type OrderStatus =
 export interface OrderItem {
   id: string
   orderId: string
-  productId: string
+  sanityId: string
   productName: string
   quantity: number
   unitPriceKes: number
