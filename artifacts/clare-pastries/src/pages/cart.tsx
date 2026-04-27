@@ -64,7 +64,7 @@ export default function CartPage() {
   const [phone, setPhone] = useState("");
   const [address, setAddress] = useState("");
   const [fulfillment, setFulfillment] = useState<"DELIVERY" | "PICKUP">("DELIVERY");
-  const [paymentMethod, setPaymentMethod] = useState<"MPESA" | "CASH" | "CARD">("MPESA");
+  const [paymentMethod, setPaymentMethod] = useState<"MPESA" | "CASH">("MPESA");
   const [notes, setNotes] = useState("");
 
   const deliveryFee = fulfillment === "DELIVERY" && subtotal > 0 ? (settings?.deliveryFeeKes ?? 100) : 0;

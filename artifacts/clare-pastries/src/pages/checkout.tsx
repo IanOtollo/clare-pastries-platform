@@ -495,7 +495,7 @@ export default function CheckoutPage() {
                     <h2 className="text-2xl font-serif font-bold text-[var(--cp-text)]">Choose how you&apos;ll pay</h2>
                     
                     <div className="space-y-3">
-                      {["MPESA", "CARD", "CASH"].map((method) => (
+                      {["MPESA", "CASH"].map((method) => (
                         <button
                           key={method}
                           onClick={() => setFormData({...formData, paymentMethod: method as any})}
@@ -507,15 +507,14 @@ export default function CheckoutPage() {
                           <div className="flex items-center gap-4">
                             <div className={cn("p-2 rounded-lg", formData.paymentMethod === method ? "bg-primary text-white" : "bg-muted text-muted-foreground")}>
                               {method === "MPESA" && <Smartphone className="h-5 w-5" />}
-                              {method === "CARD" && <CreditCard className="h-5 w-5" />}
                               {method === "CASH" && <Banknote className="h-5 w-5" />}
                             </div>
                             <div className="text-left">
                               <p className="font-bold text-[var(--cp-text)]">
-                                {method === "MPESA" ? "M-Pesa Express" : method === "CARD" ? "Credit / Debit Card" : "Cash on Delivery"}
+                                {method === "MPESA" ? "M-Pesa Express" : "Cash on Delivery"}
                               </p>
                               <p className="text-xs text-muted-foreground">
-                                {method === "MPESA" ? "A prompt will be sent to your phone" : method === "CARD" ? "Pay securely via iPay" : "Pay when your order arrives"}
+                                {method === "MPESA" ? "A prompt will be sent to your phone" : "Pay when your order arrives"}
                               </p>
                             </div>
                           </div>
