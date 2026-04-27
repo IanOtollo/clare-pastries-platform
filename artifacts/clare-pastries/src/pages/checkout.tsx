@@ -170,7 +170,9 @@ export default function CheckoutPage() {
 
       // WhatsApp notification via Vercel serverless proxy (no CORS restriction)
       const itemsList = items.map((i) => `${i.quantity}x ${i.product.name}`).join(", ");
-      fetch("/api/notify-order", {
+      const baseUrl = window.location.hostname === 'localhost' ? 'https://clarepastries-pearl.vercel.app' : '';
+      
+      fetch(`${baseUrl}/api/notify-order`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

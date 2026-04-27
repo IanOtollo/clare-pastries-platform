@@ -170,7 +170,11 @@ async function notifyClare(order: Record<string, unknown>, items: CartItem[]) {
     .join(', ');
 
   try {
-    const res = await fetch('/api/notify-order', {
+    const baseUrl = typeof window !== 'undefined' && window.location.hostname === 'localhost' 
+      ? 'https://clarepastries-pearl.vercel.app' 
+      : '';
+
+    const res = await fetch(`${baseUrl}/api/notify-order`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
