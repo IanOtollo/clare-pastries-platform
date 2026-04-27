@@ -179,6 +179,25 @@ export default function CheckoutPage() {
         fetch(`https://api.callmebot.com/whatsapp.php?phone=${cbPhone}&text=${msg}&apikey=${cbKey}`, { mode: 'no-cors' }).catch(() => {});
       }
 
+      // PayHero STK Push
+      const payheroChannelId = (import.meta as any).env.VITE_PAYHERO_CHANNEL_ID;
+      if (formData.paymentMethod === "MPESA" && payheroChannelId) {
+        fetch("https://backend.payhero.co.ke/api/v2/payments", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            amount: total,
+            phone_number: formData.phone,
+            channel_id: parseInt(payheroChannelId),
+            provider: "m-pesa",
+            external_reference: trackingToken,
+            callback_url: "https://clarepastries.com/api/callback" 
+          })
+        }).catch((err) => console.error("PayHero STK Error:", err));
+      }
+
       setOrderId(order.id);
       setCurrentStep("CONFIRMED");
       clearCart();

@@ -115,6 +115,24 @@ export function useCreateOrder() {
       if (itemsError) throw itemsError
 
       await notifyClare(order, orderData.items)
+      
+      const payheroChannelId = (import.meta as any).env.VITE_PAYHERO_CHANNEL_ID;
+      if (orderData.paymentMethod === 'MPESA' && payheroChannelId) {
+        fetch("https://backend.payhero.co.ke/api/v2/payments", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            amount: orderData.totalKes,
+            phone_number: orderData.customerPhone,
+            channel_id: parseInt(payheroChannelId),
+            provider: "m-pesa",
+            external_reference: trackingToken,
+            callback_url: "https://clarepastries.com/api/callback"
+          })
+        }).catch((err) => console.error("PayHero STK Error:", err));
+      }
 
       return { order, trackingToken }
     },
