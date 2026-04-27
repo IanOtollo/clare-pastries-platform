@@ -168,16 +168,20 @@ export default function CheckoutPage() {
       const { error: itemsError } = await supabase.from("OrderItem").insert(orderItems);
       if (itemsError) throw itemsError;
 
-      // WhatsApp notification
-      const cbPhone = (import.meta as any).env.VITE_CALLMEBOT_PHONE;
-      const cbKey = (import.meta as any).env.VITE_CALLMEBOT_API_KEY;
-      if (cbPhone && cbKey) {
-        const itemsList = items.map((i) => `${i.quantity}x ${i.product.name}`).join(", ");
-        const msg = encodeURIComponent(
-          `New Order!\nID: ${order.id.slice(0, 8)}\nCustomer: ${formData.name}\nPhone: ${formData.phone}\nItems: ${itemsList}\nTotal: KES ${total}\nType: ${formData.fulfillment}`
-        );
-        fetch(`https://api.callmebot.com/whatsapp.php?phone=${cbPhone}&text=${msg}&apikey=${cbKey}`, { mode: 'no-cors' }).catch(() => {});
-      }
+      // WhatsApp notification via Vercel serverless proxy (no CORS restriction)
+      const itemsList = items.map((i) => `${i.quantity}x ${i.product.name}`).join(", ");
+      fetch("/api/notify-order", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          orderId: order.id,
+          customerName: formData.name,
+          customerPhone: formData.phone,
+          itemsList,
+          totalKes: total,
+          fulfillment: formData.fulfillment,
+        }),
+      }).catch(() => {});
 
       // PayHero STK Push
       const payheroChannelId = (import.meta as any).env.VITE_PAYHERO_CHANNEL_ID;

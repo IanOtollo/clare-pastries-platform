@@ -165,29 +165,23 @@ export function useCreateOrder() {
 }
 
 async function notifyClare(order: Record<string, unknown>, items: CartItem[]) {
-  const phone = (import.meta as any).env.VITE_CALLMEBOT_PHONE
-  const apikey = (import.meta as any).env.VITE_CALLMEBOT_API_KEY
-
-  if (!phone || !apikey) return
-
   const itemsList = items
     .map((i) => `${i.quantity}x ${i.product.name}`)
-    .join(', ')
-
-  const message = encodeURIComponent(
-    `New Order!\nID: ${String(order.id).slice(0, 8)}\n` +
-      `Customer: ${order.guestName || 'Registered user'}\n` +
-      `Phone: ${order.guestPhone || 'N/A'}\n` +
-      `Items: ${itemsList}\n` +
-      `Total: KES ${order.totalKes}\n` +
-      `Type: ${order.fulfillment}`
-  )
+    .join(', ');
 
   try {
-    await fetch(
-      `https://api.callmebot.com/whatsapp.php?phone=${phone}&text=${message}&apikey=${apikey}`,
-      { mode: 'no-cors' }
-    )
+    await fetch('/api/notify-order', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        orderId: order.id,
+        customerName: order.guestName || 'Registered user',
+        customerPhone: order.guestPhone || 'N/A',
+        itemsList,
+        totalKes: order.totalKes,
+        fulfillment: order.fulfillment,
+      }),
+    });
   } catch {
     // Never block order on notification failure
   }
