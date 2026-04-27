@@ -70,8 +70,6 @@ export default function Menu() {
           budgetRange: data.budget || null,
           notes: null,
           status: 'NEW',
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
         });
         if (error) throw error;
         
