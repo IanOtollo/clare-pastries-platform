@@ -12,7 +12,7 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const { orderId, customerName, customerPhone, itemsList, totalKes, fulfillment } = req.body;
+  const { isCustomOrder, orderId, customerName, customerPhone, itemsList, totalKes, fulfillment, occasion, description, budget } = req.body;
 
   const phone = process.env.VITE_CALLMEBOT_PHONE;
   const apikey = process.env.VITE_CALLMEBOT_API_KEY;
@@ -21,9 +21,14 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: 'CallMeBot credentials not configured' });
   }
 
-  const message = encodeURIComponent(
-    `🧁 New Order!\nID: ${String(orderId).slice(0, 8)}\nCustomer: ${customerName}\nPhone: ${customerPhone}\nItems: ${itemsList}\nTotal: KES ${totalKes}\nType: ${fulfillment}`
-  );
+  let rawMessage = '';
+  if (isCustomOrder) {
+    rawMessage = `🎨 Custom Order!\nID: ${String(orderId).slice(0, 8)}\nFrom: ${customerName}\nPhone: ${customerPhone}\nOccasion: ${occasion}\nDetails: ${description}\nBudget: ${budget || 'N/A'}\nType: ${fulfillment}`;
+  } else {
+    rawMessage = `🧁 New Order!\nID: ${String(orderId).slice(0, 8)}\nCustomer: ${customerName}\nPhone: ${customerPhone}\nItems: ${itemsList}\nTotal: KES ${totalKes}\nType: ${fulfillment}`;
+  }
+
+  const message = encodeURIComponent(rawMessage);
 
   try {
     const response = await fetch(

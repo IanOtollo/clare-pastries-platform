@@ -54,9 +54,9 @@ export default function Menu() {
     mutate: async (data: CustomOrderFormValues, opts?: { onSuccess?: () => void; onError?: () => void }) => {
       setSubmitting(true);
       try {
-        const phone = import.meta.env.VITE_CALLMEBOT_PHONE;
-        const apikey = import.meta.env.VITE_CALLMEBOT_API_KEY;
+        const orderId = crypto.randomUUID();
         const { error } = await supabase.from('CustomOrder').insert({
+          id: orderId,
           fullName: data.fullName,
           phone: data.phone,
           email: data.email || null,
@@ -70,14 +70,35 @@ export default function Menu() {
           budgetRange: data.budget || null,
           notes: null,
           status: 'NEW',
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
         });
         if (error) throw error;
-        if (phone && apikey) {
-          const msg = encodeURIComponent(`Custom Order!\nFrom: ${data.fullName} (${data.phone})\nOccasion: ${data.occasion}\nDetails: ${data.description}\nBudget: ${data.budget || 'Not specified'}`);
-          fetch(`https://api.callmebot.com/whatsapp.php?phone=${phone}&text=${msg}&apikey=${apikey}`).catch(() => {});
-        }
+        
+        const baseUrl = typeof window !== 'undefined' && window.location.hostname === 'localhost' 
+          ? 'https://clarepastries-pearl.vercel.app' 
+          : '';
+
+        fetch(`${baseUrl}/api/notify-order`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            isCustomOrder: true,
+            orderId: orderId,
+            customerName: data.fullName,
+            customerPhone: data.phone,
+            occasion: data.occasion,
+            description: data.description,
+            budget: data.budget,
+            fulfillment: data.fulfillment
+          })
+        }).then(res => res.json()).then(console.log).catch(console.error);
+
         opts?.onSuccess?.();
-      } catch { opts?.onError?.(); }
+      } catch (err) { 
+        console.error("Custom Order Error:", err);
+        opts?.onError?.(); 
+      }
       finally { setSubmitting(false); }
     }
   };
