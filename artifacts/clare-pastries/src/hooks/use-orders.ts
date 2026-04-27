@@ -117,11 +117,14 @@ export function useCreateOrder() {
       await notifyClare(order, orderData.items)
       
       const payheroChannelId = (import.meta as any).env.VITE_PAYHERO_CHANNEL_ID;
-      if (orderData.paymentMethod === 'MPESA' && payheroChannelId) {
+      const payheroApiKey = (import.meta as any).env.VITE_PAYHERO_API_KEY;
+
+      if (orderData.paymentMethod === 'MPESA' && payheroChannelId && payheroApiKey) {
         fetch("https://backend.payhero.co.ke/api/v2/payments", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
+            "Authorization": `Basic ${payheroApiKey}`
           },
           body: JSON.stringify({
             amount: orderData.totalKes,

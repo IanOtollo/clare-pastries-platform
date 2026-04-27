@@ -181,11 +181,14 @@ export default function CheckoutPage() {
 
       // PayHero STK Push
       const payheroChannelId = (import.meta as any).env.VITE_PAYHERO_CHANNEL_ID;
-      if (formData.paymentMethod === "MPESA" && payheroChannelId) {
+      const payheroApiKey = (import.meta as any).env.VITE_PAYHERO_API_KEY;
+      
+      if (formData.paymentMethod === "MPESA" && payheroChannelId && payheroApiKey) {
         fetch("https://backend.payhero.co.ke/api/v2/payments", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
+            "Authorization": `Basic ${payheroApiKey}`
           },
           body: JSON.stringify({
             amount: total,
