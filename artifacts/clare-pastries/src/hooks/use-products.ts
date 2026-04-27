@@ -47,6 +47,7 @@ export function useFeaturedProducts() {
   return useQuery({
     queryKey: ['products', 'featured'],
     queryFn: async () => {
+      // First, try fetching explicitly featured products
       const { data, error } = await supabase
         .from('products')
         .select('*')
@@ -55,6 +56,20 @@ export function useFeaturedProducts() {
         .limit(6)
       
       if (error) throw error
+      
+      // If there are no featured products, gracefully fallback to the latest 6 available products
+      if (!data || data.length === 0) {
+        const { data: fallbackData, error: fallbackError } = await supabase
+          .from('products')
+          .select('*')
+          .eq('available', true)
+          .order('created_at', { ascending: false })
+          .limit(6)
+          
+        if (fallbackError) throw fallbackError
+        return fallbackData.map(mapProduct)
+      }
+
       return data.map(mapProduct)
     },
     staleTime: 120000,
