@@ -129,17 +129,18 @@ export default function CheckoutPage() {
       const { data: order, error: orderError } = await supabase
         .from("Order")
         .insert({
-          customerName: formData.name,
-          customerEmail: formData.email || null,
-          customerPhone: formData.phone,
-          deliveryAddress: formData.fulfillment === "DELIVERY" ? formData.address : null,
-          fulfillmentType: formData.fulfillment,
+          guestName: formData.name,
+          guestEmail: formData.email || null,
+          guestPhone: formData.phone,
+          deliveryStreet: formData.fulfillment === "DELIVERY" ? formData.address : null,
+          fulfillment: formData.fulfillment,
           paymentMethod: formData.paymentMethod,
           subtotalKes: subtotal,
           deliveryFeeKes: deliveryFee,
           totalKes: total,
           notes: formData.notes || null,
           status: "PENDING",
+          paymentStatus: "UNPAID",
           trackingToken,
           userId: user?.id || null,
         })
@@ -151,6 +152,7 @@ export default function CheckoutPage() {
       const orderItems = items.map((it) => ({
         orderId: order.id,
         productId: it.product.id,
+        productName: it.product.name,
         quantity: it.quantity,
         unitPriceKes: it.product.priceKes,
         totalPriceKes: it.product.priceKes * it.quantity,

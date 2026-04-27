@@ -188,7 +188,7 @@ export default function OrderTracking() {
                     <div>
                       <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground mb-1">Destination</p>
                       <p className="text-[var(--cp-text)] font-medium">
-                        {order.fulfillmentType === 'DELIVERY' ? order.deliveryAddress || 'Address not specified' : 'Pickup from Clare Pastries Shop'}
+                        {order.fulfillment === 'DELIVERY' ? order.deliveryStreet || 'Address not specified' : 'Pickup from Clare Pastries Shop'}
                       </p>
                     </div>
                   </div>
@@ -218,7 +218,7 @@ export default function OrderTracking() {
                     </div>
                     <div>
                       <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground mb-1">Customer Contact</p>
-                      <p className="text-[var(--cp-text)] font-medium">{order.customerPhone}</p>
+                      <p className="text-[var(--cp-text)] font-medium">{order.guestPhone}</p>
                     </div>
                   </div>
                 </div>

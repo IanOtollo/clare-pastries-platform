@@ -47,16 +47,16 @@ export function useCreateOrder() {
 
   return useMutation({
     mutationFn: async (orderData: {
-      customerName?: string
-      customerPhone?: string
-      customerEmail?: string
+      guestName?: string
+      guestPhone?: string
+      guestEmail?: string
       userId?: string
       items: CartItem[]
       subtotalKes: number
       deliveryFeeKes: number
       totalKes: number
-      fulfillmentType: 'DELIVERY' | 'PICKUP'
-      deliveryAddress?: string
+      fulfillment: 'DELIVERY' | 'PICKUP'
+      deliveryStreet?: string
       deliveryLandmark?: string
       deliveryBuilding?: string
       deliveryTown?: string
@@ -73,16 +73,16 @@ export function useCreateOrder() {
         .insert({
           trackingToken,
           userId: orderData.userId || null,
-          customerName: orderData.customerName,
-          customerPhone: orderData.customerPhone,
-          customerEmail: orderData.customerEmail,
+          guestName: orderData.guestName,
+          guestPhone: orderData.guestPhone,
+          guestEmail: orderData.guestEmail,
           subtotalKes: orderData.subtotalKes,
           deliveryFeeKes: orderData.deliveryFeeKes,
           totalKes: orderData.totalKes,
-          fulfillmentType: orderData.fulfillmentType,
+          fulfillment: orderData.fulfillment,
           deliveryArea: orderData.deliveryArea,
           deliveryLandmark: orderData.deliveryLandmark,
-          deliveryAddress: orderData.deliveryAddress,
+          deliveryStreet: orderData.deliveryStreet,
           deliveryTown: orderData.deliveryTown,
           notes: orderData.notes,
           status: 'PENDING',

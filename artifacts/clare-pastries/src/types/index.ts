@@ -35,19 +35,19 @@ export interface Order {
   id: string
   trackingToken: string
   userId?: string
-  customerName?: string
-  customerPhone?: string
-  customerEmail?: string
+  guestName?: string
+  guestPhone?: string
+  guestEmail?: string
   items: OrderItem[]
   subtotalKes: number
   deliveryFeeKes: number
   totalKes: number
   displayCurrency: string
   displayTotal: number
-  fulfillmentType: 'DELIVERY' | 'PICKUP'
+  fulfillment: 'DELIVERY' | 'PICKUP'
   deliveryArea?: string
   deliveryLandmark?: string
-  deliveryAddress?: string
+  deliveryStreet?: string
   deliveryTown?: string
   status: OrderStatus
   paymentStatus: 'UNPAID' | 'PAID' | 'REFUNDED'
