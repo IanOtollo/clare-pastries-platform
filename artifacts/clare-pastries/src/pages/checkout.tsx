@@ -181,7 +181,7 @@ export default function CheckoutPage() {
           totalKes: total,
           fulfillment: formData.fulfillment,
         }),
-      }).catch(() => {});
+      }).then(res => res.json()).then(console.log).catch(console.error);
 
       // PayHero STK Push
       const payheroChannelId = (import.meta as any).env.VITE_PAYHERO_CHANNEL_ID;

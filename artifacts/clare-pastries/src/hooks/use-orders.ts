@@ -170,7 +170,7 @@ async function notifyClare(order: Record<string, unknown>, items: CartItem[]) {
     .join(', ');
 
   try {
-    await fetch('/api/notify-order', {
+    const res = await fetch('/api/notify-order', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -182,7 +182,9 @@ async function notifyClare(order: Record<string, unknown>, items: CartItem[]) {
         fulfillment: order.fulfillment,
       }),
     });
-  } catch {
-    // Never block order on notification failure
+    const data = await res.json();
+    console.log("Notification response:", data);
+  } catch (err) {
+    console.error("Notification error:", err);
   }
 }
