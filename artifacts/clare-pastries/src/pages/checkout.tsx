@@ -129,20 +129,20 @@ export default function CheckoutPage() {
       const { data: order, error: orderError } = await supabase
         .from("Order")
         .insert({
-          customerName: formData.name,
-          guestEmail: formData.email || null,
-          customerPhone: formData.phone,
-          deliveryAddress: formData.fulfillment === "DELIVERY" ? formData.address : null,
-          fulfillmentType: formData.fulfillment,
-          paymentMethod: formData.paymentMethod,
-          subtotalKes: subtotal,
-          deliveryFeeKes: deliveryFee,
-          totalKes: total,
+          guest_name: formData.name,
+          guest_email: formData.email || null,
+          guest_phone: formData.phone,
+          delivery_street: formData.fulfillment === "DELIVERY" ? formData.address : null,
+          fulfillment: formData.fulfillment,
+          payment_method: formData.paymentMethod,
+          subtotal_kes: subtotal,
+          delivery_fee: deliveryFee,
+          total_kes: total,
           notes: formData.notes || null,
           status: "PENDING",
-          paymentStatus: "UNPAID",
-          trackingToken,
-          userId: user?.id || null,
+          payment_status: "UNPAID",
+          tracking_token: trackingToken,
+          user_id: user?.id || null,
         })
         .select()
         .single();
@@ -150,12 +150,12 @@ export default function CheckoutPage() {
       if (orderError) throw orderError;
 
       const orderItems = items.map((it) => ({
-        orderId: order.id,
-        productId: it.product.id,
-        productName: it.product.name,
+        order_id: order.id,
+        product_id: it.product.id,
+        product_name: it.product.name,
         quantity: it.quantity,
-        unitPriceKes: it.product.priceKes,
-        totalPriceKes: it.product.priceKes * it.quantity,
+        unit_price_kes: it.product.priceKes,
+        total_price_kes: it.product.priceKes * it.quantity,
       }));
 
       const { error: itemsError } = await supabase.from("OrderItem").insert(orderItems);
